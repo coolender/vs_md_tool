@@ -1,0 +1,61 @@
+/* ===== 设计令牌：亮色（默认） ===== */
+:root,
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-soft: #f6f8fa;
+  --bg-elevated: #ffffff;
+  --fg: #1f2328;
+  --fg-soft: #656d76;
+  --fg-muted: #8c959f;
+  --border: #d0d7de;
+  --border-soft: #e6e8eb;
+  --accent: #0969da;
+  --accent-soft: #ddf4ff;
+  --danger: #cf222e;
+  --code-bg: #f6f8fa;
+  --code-fg: #1f2328;
+  --selection: #0550ae33;
+
+  /* 阅读区 */
+  --reading-fg: #1f2328;
+  --reading-bg: #ffffff;
+  --reading-font-size: 16px;
+  --reading-line-height: 1.7;
+  --reading-max-width: 780px;
+
+  /* 字体栈 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "SF Mono", Consolas,
+    "Liberation Mono", Menlo, monospace;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+
+  /* 尺寸 */
+  --titlebar-h: 44px;
+  --statusbar-h: 28px;
+  --sidebar-w: 260px;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== 设计令牌：暗色 ===== */
+[data-theme="dark"] {
+  --bg: #0d1117;
+  --bg-soft: #161b22;
+  --bg-elevated: #1c2128;
+  --fg: #e6edf3;
+  --fg-soft: #8b949e;
+  --fg-muted: #6e7681;
+  --border: #30363d;
+  --border-soft: #21262d;
+  --accent: #58a6ff;
+  --accent-soft: #1f6feb22;
+  --danger: #f85149;
+  --code-bg: #161b22;
+  --code-fg: #e6edf3;
+  --selection: #1f6feb55;
+
+  --reading-fg: #e6edf3;
+  --reading-bg: #0d1117;
+}

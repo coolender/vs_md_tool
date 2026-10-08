@@ -1,0 +1,76 @@
+@import "./styles/tokens.css";
+@import "./styles/global.css";
+@import "./styles/prose.css";
+
+/* CodeMirror 基础主题（轻量自定义，亮/暗由 .cm-theme-dark 切换） */
+.cm-editor {
+  height: 100%;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.cm-editor .cm-scroller {
+  font-family: var(--font-mono);
+  line-height: 1.6;
+}
+.cm-editor.cm-focused {
+  outline: none;
+}
+.cm-gutters {
+  background: var(--bg);
+  border-right: 1px solid var(--border-soft);
+  color: var(--fg-muted);
+}
+.cm-activeLine {
+  background: color-mix(in srgb, var(--bg-soft) 50%, transparent);
+}
+.cm-activeLineGutter {
+  background: color-mix(in srgb, var(--bg-soft) 50%, transparent);
+  color: var(--fg-soft);
+}
+.cm-selectionBackground {
+  background: var(--selection) !important;
+}
+.cm-cursor {
+  border-left-color: var(--accent);
+  border-left-width: 2px;
+}
+
+/* Markdown 语法着色（轻量，亮色） */
+.cm-formatting,
+.cm-formatting-header,
+.cm-formatting-list,
+.cm-formatting-quote {
+  color: var(--fg-muted);
+}
+.cm-header {
+  color: var(--fg);
+  font-weight: 600;
+}
+.cm-link {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.cm-url {
+  color: var(--accent);
+}
+.cm-quote {
+  color: var(--fg-soft);
+  font-style: italic;
+}
+.cm-strong {
+  font-weight: 700;
+}
+.cm-emphasis {
+  font-style: italic;
+}
+.cm-monospace {
+  color: var(--code-fg);
+  background: var(--code-bg);
+  border-radius: 3px;
+  padding: 0 0.2em;
+}
+.cm-hr {
+  color: var(--border);
+}

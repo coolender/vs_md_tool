@@ -1,0 +1,54 @@
+# ===== 依赖 =====
+node_modules/
+
+# ===== 前端构建产物 =====
+dist/
+dist-ssr/
+*.local
+
+# ===== Tauri / Rust 构建产物（含 exe，体积巨大）=====
+src-tauri/target/
+
+# ===== Tauri 自动生成（schemas + android/apple 工程，可 tauri init 重生成）=====
+# 内含 gradle 缓存 / build 产物 / 复制的前端 dist，均不提交。
+# 如需保留对 AndroidManifest 等的手改，可改为仅忽略 src-tauri/gen/schemas
+# 及各 build/.gradle/.kotlin 目录。
+src-tauri/gen/
+
+# ===== 🔴 Android 签名密钥（机密，绝勿上传）=====
+*.keystore
+*.jks
+key.properties
+keystore.properties
+
+# ===== Android 构建产物 =====
+*.apk
+*.apk.idsig
+*.aab
+
+# ===== 本机环境配置（含机器相关路径，如 NDK / SDK 位置）=====
+src-tauri/.cargo/config.toml
+local.properties
+
+# ===== 临时文件 =====
+*.tmp
+inst_user_settings.tmp
+
+# ===== 图标生成源（src-tauri/icons/ 已含生成结果）=====
+source-icon.png
+
+# ===== 编辑器 / IDE =====
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.vs/
+
+# ===== 操作系统 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 日志 =====
+*.log

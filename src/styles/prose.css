@@ -1,0 +1,205 @@
+/* ===== Markdown 渲染区排版（阅读区） =====
+   参考 GitHub / Typora 风格，统一在 .prose 作用域内。
+*/
+.prose {
+  color: var(--reading-fg);
+  font-family: var(--font-sans);
+  font-size: var(--reading-font-size);
+  line-height: var(--reading-line-height);
+  word-wrap: break-word;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+/* 标题 */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin: 1.8em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--reading-fg);
+}
+.prose h1 {
+  font-size: 1.9em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border-soft);
+}
+.prose h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border-soft);
+}
+.prose h3 {
+  font-size: 1.25em;
+}
+.prose h4 {
+  font-size: 1.05em;
+}
+.prose h5 {
+  font-size: 0.95em;
+}
+.prose h6 {
+  font-size: 0.9em;
+  color: var(--fg-soft);
+}
+
+/* 段落与链接 */
+.prose p {
+  margin: 0 0 1em;
+}
+.prose a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.prose a:hover {
+  text-decoration: underline;
+}
+
+/* 强调 */
+.prose strong {
+  font-weight: 600;
+}
+.prose em {
+  font-style: italic;
+}
+.prose del {
+  color: var(--fg-muted);
+}
+
+/* 列表 */
+.prose ul,
+.prose ol {
+  margin: 0 0 1em;
+  padding-left: 1.8em;
+}
+.prose li {
+  margin: 0.25em 0;
+}
+.prose li > p {
+  margin: 0.25em 0;
+}
+.prose ul {
+  list-style: disc;
+}
+.prose ol {
+  list-style: decimal;
+}
+
+/* 任务列表 */
+.prose .task-list-item {
+  list-style: none;
+  margin-left: -1.4em;
+}
+.prose .task-list-item input {
+  margin: 0 0.35em 0 0;
+  vertical-align: middle;
+}
+
+/* 引用 */
+.prose blockquote {
+  margin: 0 0 1em;
+  padding: 0 1em;
+  color: var(--fg-soft);
+  border-left: 0.25em solid var(--border);
+}
+.prose blockquote > :first-child {
+  margin-top: 0;
+}
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* 行内代码 */
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.2em 0.4em;
+  background: var(--code-bg);
+  border-radius: var(--radius-sm);
+  color: var(--code-fg);
+}
+.prose pre code {
+  padding: 0;
+  background: transparent;
+  font-size: 0.9em;
+}
+
+/* 代码块（Shiki 输出 <pre class="shiki">） */
+.prose pre {
+  margin: 0 0 1em;
+  padding: 1em 1.2em;
+  background: var(--code-bg);
+  border-radius: var(--radius);
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  line-height: 1.6;
+}
+.prose pre.shiki {
+  /* Shiki 用内联 background-color，这里仅兜底 */
+  background: var(--code-bg) !important;
+}
+
+/* 表格 */
+.prose table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.prose th,
+.prose td {
+  padding: 0.5em 0.9em;
+  border: 1px solid var(--border);
+}
+.prose th {
+  font-weight: 600;
+  background: var(--bg-soft);
+}
+.prose tr:nth-child(2n) {
+  background: var(--bg-soft);
+}
+
+/* 水平线 */
+.prose hr {
+  height: 1px;
+  margin: 1.5em 0;
+  border: none;
+  background: var(--border);
+}
+
+/* 图片 */
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* KaTeX 公式 */
+.prose .katex-display {
+  margin: 0.8em 0;
+  overflow: auto hidden;
+  padding: 0.2em 0;
+}
+
+/* Mermaid 图表 */
+.prose .mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 1em;
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  padding: 1em;
+}
+.prose .mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
