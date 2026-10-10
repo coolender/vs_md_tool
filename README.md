@@ -8,14 +8,14 @@
 
 VsMReader 是一个**体积仅几 MB、免安装、可随身携带**的 Markdown 工具，兼顾**阅读**与**编辑**，内置语法高亮、数学公式、流程图、本地图片支持，以及一整套防丢失机制。
 
-## 下载
+## 👇 下载
 
-直接到 [Releases](../../releases) 页面下载对应平台的安装包：
+前往 **[Releases 发布页](https://gitee.com/coolender/vs_md_tool/releases)** 下载对应平台的程序，开箱即用，无需编译：
 
 | 平台 | 文件 | 说明 |
 |------|------|------|
+| Windows | `vsmreader.exe` | 🟢 绿色单文件，双击即用，免安装 |
 | Windows | `VsMReader_0.1.0_x64-setup.exe` | NSIS 安装包，双击安装 |
-| Windows | `vsmreader.exe` | 绿色单文件，双击即用，免安装 |
 | macOS | `VsMReader_0.1.0_x64.dmg` | 拖入 Applications 安装 |
 
 > Windows 绿色版若希望数据随 exe 走（U 盘便携），在 exe 同级目录新建空 `portable.txt` 即可。
