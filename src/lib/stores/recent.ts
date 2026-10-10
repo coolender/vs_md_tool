@@ -5,7 +5,7 @@ export interface RecentFile {
   name: string;
 }
 
-const STORAGE_KEY = "mreader.recent";
+const STORAGE_KEY = "vsmreader.recent";
 const MAX = 20;
 
 function load(): RecentFile[] {

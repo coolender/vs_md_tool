@@ -3,12 +3,15 @@
 #
 # Android Studio 自带 JBR（JetBrains Runtime）作为 JDK，sdkmanager 用它。
 # SDK 默认装到 %LOCALAPPDATA%\Android\Sdk
+#
+# 注意：下面的 Android Studio 路径是默认安装位置。如果你的安装路径不同，
+#       请修改 $Studio 变量。
 
 $ErrorActionPreference = "Stop"
 
 $Studio = "C:\Program Files\Android\Android Studio"
 if (-not (Test-Path $Studio)) {
-    Write-Error "Android Studio 未安装于 $Studio，请先安装。"
+    Write-Error "Android Studio 未安装于 $Studio，请先安装或修改脚本中的路径。"
     exit 1
 }
 

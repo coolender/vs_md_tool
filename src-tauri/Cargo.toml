@@ -2,7 +2,7 @@
 name = "vsmreader"
 version = "0.1.0"
 description = "VsMReader - 轻量级 Markdown 阅读器"
-authors = ["you"]
+authors = ["coolender"]
 edition = "2021"
 rust-version = "1.77"
 

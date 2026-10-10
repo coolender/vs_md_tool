@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 
 export type ThemeMode = "light" | "dark" | "system";
 
-const STORAGE_KEY = "mreader.theme";
+const STORAGE_KEY = "vsmreader.theme";
 const isBrowser = typeof window !== "undefined";
 
 function getSystemPref(): "light" | "dark" {
