@@ -1,5 +1,9 @@
 import { writable, derived, get } from "svelte/store";
 import { tr } from "../i18n/index.ts";
+import { clearEditorState } from "../editor/editorState.ts";
+import { clearTabMode } from "./mode.ts";
+import { cancelAutoSave, recordSave } from "./fileWatch.ts";
+import { deleteDraft, type Draft } from "./drafts.ts";
 
 /**
  * 多标签文档模型。每个标签独立持有 path / content / dirty，
@@ -83,11 +87,19 @@ export function setContent(content: string) {
 export function markSaved(path: string) {
   const id = get(activeId);
   const name = path.split(/[\\/]/).pop() ?? path;
-  tabs.update((list) =>
-    list.map((t) =>
+  const list = get(tabs);
+  const tab = list.find((t) => t.id === id);
+  // 未命名标签转正为真实文件后，删除其草稿
+  if (tab && tab.path === null) {
+    void deleteDraft(tab.id);
+  }
+  tabs.update((ls) =>
+    ls.map((t) =>
       t.id === id ? { ...t, path, name, dirty: false } : t,
     ),
   );
+  // 记录保存时刻，使自动保存计时以此次手动保存为起点
+  recordSave(id);
 }
 
 /** 用磁盘上重新读取的内容覆盖指定标签（外部变动重载） */
@@ -129,6 +141,8 @@ export function openFileInTab(path: string, content: string) {
   const active = list.find((t) => t.id === id);
   // 活动标签是空白未命名 → 就地替换
   if (active && active.path === null && !active.dirty && isEmptyContent(active.content)) {
+    // 就地替换前清理旧草稿（若有）
+    void deleteDraft(active.id);
     tabs.update((ls) =>
       ls.map((t) =>
         t.id === id ? { ...t, path, name, content, dirty: false } : t,
@@ -161,6 +175,11 @@ export async function closeTab(id: string): Promise<boolean> {
     );
     if (!ok) return false;
   }
+  // 用户确认关闭 → 清理该标签的编辑器状态/模式/自动保存定时器/草稿
+  clearEditorState(id);
+  clearTabMode(id);
+  cancelAutoSave(id);
+  void deleteDraft(id);
   const next = list.filter((t) => t.id !== id);
   if (next.length === 0) {
     // 至少保留一个空白标签
@@ -191,6 +210,13 @@ export async function closeOthers(id: string): Promise<void> {
     );
     if (!ok) return;
   }
+  // 清理被关标签的状态/模式/定时器/草稿
+  for (const t of others) {
+    clearEditorState(t.id);
+    clearTabMode(t.id);
+    cancelAutoSave(t.id);
+    void deleteDraft(t.id);
+  }
   tabs.set([keep]);
   activeId.set(keep.id);
 }
@@ -204,6 +230,13 @@ export async function closeAll(): Promise<void> {
       `${tr("dialog.closeAll", dirtyCount)}\n\n${tr("dialog.closeAll.hint")}`,
     );
     if (!ok) return;
+  }
+  // 清理所有标签的状态/模式/定时器/草稿
+  for (const t of list) {
+    clearEditorState(t.id);
+    clearTabMode(t.id);
+    cancelAutoSave(t.id);
+    void deleteDraft(t.id);
   }
   const blank = createUntitled();
   tabs.set([blank]);
@@ -225,7 +258,34 @@ export function anyDirty(): boolean {
   return get(tabs).some((t) => t.dirty);
 }
 
+/** 取所有未保存的标签 */
+export function dirtyTabs(): Tab[] {
+  return get(tabs).filter((t) => t.dirty);
+}
+
+/**
+ * 启动时从草稿恢复未命名标签（崩溃/未正常关闭兜底）。
+ * 复用草稿原 tabId，使后续 saveDraft 覆盖同一文件、deleteDraft 能对应清理。
+ * 恢复为脏标签（●），用户可保存或关闭。
+ */
+export function restoreDrafts(drafts: Draft[]): void {
+  if (!drafts.length) return;
+  const restored: Tab[] = drafts.map((d) => ({
+    id: d.id,
+    path: null,
+    name: tr("doc.untitled"),
+    content: d.content,
+    dirty: true,
+  }));
+  tabs.set(restored);
+  activeId.set(restored[0].id);
+}
+
 function samePath(a: string, b: string): boolean {
-  // Windows 路径不区分大小写
-  return a.replace(/\\/g, "/").toLowerCase() === b.replace(/\\/g, "/").toLowerCase();
+  const na = a.replace(/\\/g, "/");
+  const nb = b.replace(/\\/g, "/");
+  // Windows 路径不区分大小写；macOS/Linux 默认区分大小写（APFS 大小写敏感）
+  return /Win/.test(navigator.platform)
+    ? na.toLowerCase() === nb.toLowerCase()
+    : na === nb;
 }

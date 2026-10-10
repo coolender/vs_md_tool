@@ -10,9 +10,18 @@
   let showMenu = false;
   let filter = "";
 
+  /** 路径比较：Windows 不区分大小写，macOS/Linux 区分大小写 */
+  function sameBookmarkPath(a: string, b: string): boolean {
+    const na = a.replace(/\\/g, "/");
+    const nb = b.replace(/\\/g, "/");
+    return /Win/.test(navigator.platform)
+      ? na.toLowerCase() === nb.toLowerCase()
+      : na === nb;
+  }
+
   $: currentPath = $doc.path;
   $: isMarked = currentPath
-    ? $bookmarks.some((b) => b.path.replace(/\\/g, "/").toLowerCase() === currentPath.replace(/\\/g, "/").toLowerCase())
+    ? $bookmarks.some((b) => sameBookmarkPath(b.path, currentPath))
     : false;
 
   $: filtered = $bookmarks.filter(

@@ -82,6 +82,13 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
+/** 转义用于双引号属性的字符串（在 escapeHtml 基础上转义引号）。
+ * Mermaid 源码常含双引号（如 A["label"]），若不转义会提前截断 data-source 属性，
+ * 导致 mermaid.run() 拿到残缺源码而渲染失败。 */
+function escapeAttr(s: string): string {
+  return escapeHtml(s).replace(/"/g, "&quot;");
+}
+
 const md: MarkdownIt = MarkdownIt({
   html: false, // 禁用原始 HTML（安全 + 简单）
   linkify: true,
@@ -163,7 +170,7 @@ md.renderer.rules.fence = (tokens, idx, options, env, self) => {
   const info = token.info.trim();
   if (info === "mermaid") {
     const source = token.content;
-    return `<div class="mermaid" data-source="${escapeHtml(source)}">${escapeHtml(source)}</div>`;
+    return `<div class="mermaid" data-source="${escapeAttr(source)}">${escapeHtml(source)}</div>`;
   }
   return defaultFence(tokens, idx, options, env, self);
 };

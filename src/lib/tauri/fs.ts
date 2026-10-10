@@ -24,6 +24,12 @@ export const isAndroid =
 /** 是否移动端（Android 或 iOS） */
 export const isMobile = isTauri && (isAndroid || (/iPad|iPhone|iPod/i.test(navigator.userAgent)));
 
+/** 是否 Windows 桌面端（用于 .md 文件关联等 Windows 专属功能） */
+export const isWindows =
+  isTauri &&
+  typeof navigator !== "undefined" &&
+  /Win/.test(navigator.platform);
+
 export interface OpenResult {
   path: string;
   name: string;

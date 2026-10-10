@@ -1,6 +1,7 @@
 <script lang="ts">
   import { stats } from "../stores/stats.ts";
   import { doc } from "../stores/doc.ts";
+  import { saveError } from "../stores/fileWatch.ts";
   import { t, tr } from "../i18n/index.ts";
 
   let mode: "default" | "chars" | "words" = "default";
@@ -15,6 +16,9 @@
 </script>
 
 <footer class="statusbar" on:click={cycleMode} title={tr("status.cycleHint")}>
+  {#if $saveError}
+    <span class="save-error" title={$saveError} on:click|stopPropagation={cycleMode}>⚠</span>
+  {/if}
   <span class="item">
     {#if mode === "words"}
       {fmt($stats.words)} {$t("status.words")}
@@ -56,5 +60,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-variant-numeric: tabular-nums;
+  }
+  .save-error {
+    color: #d33;
+    font-size: 13px;
+    cursor: help;
+    flex-shrink: 0;
   }
 </style>

@@ -44,13 +44,19 @@
     }
   }
 
+  /** 拼接路径分隔符：Windows 用 \，其他平台用 /。
+   *  list_dir 返回的 root 在 Windows 上含 \，在 macOS/Linux 上含 /。 */
+  function joinPath(parent: string, name: string): string {
+    return parent.includes("\\") ? `${parent}\\${name}` : `${parent}/${name}`;
+  }
+
   async function openEntry(e: Entry) {
     if (e.isDir) {
-      await loadDir(root + "\\" + e.name);
+      await loadDir(joinPath(root, e.name));
     } else {
       const isMd = /\.(md|markdown|mdx|txt)$/i.test(e.name);
       if (!isMd) return;
-      const full = root + "\\" + e.name;
+      const full = joinPath(root, e.name);
       try {
         const content = await readTextFile(full);
         openFileInTab(full, content);

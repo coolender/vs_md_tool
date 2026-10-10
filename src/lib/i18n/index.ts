@@ -30,12 +30,15 @@ const zh: Dict = {
   "toolbar.mode.read": "阅读",
   "toolbar.mode.edit": "编辑",
   "toolbar.toggleTheme": "切换主题",
+  "toolbar.toggleLocale": "切换中/英文",
   "toolbar.settings": "设置",
   "toolbar.md.assoc": "设为 .md 默认程序（注册到系统）",
   "toolbar.md.assoc.registered": "已设为 .md 默认程序（点击取消）",
   "toolbar.md.assoc.register": "注册 .md 关联",
   "toolbar.md.assoc.unregister": "取消 .md 关联",
   "toolbar.dirty": "●",
+  "toolbar.undo": "撤销 (Ctrl+Z)",
+  "toolbar.redo": "重做 (Ctrl+Y)",
 
   // tab
   "tab.close": "关闭",
@@ -73,6 +76,14 @@ const zh: Dict = {
   // dialogs
   "dialog.unsavedClose": "有未保存的修改，确定关闭吗？",
   "dialog.unsavedClose.hint": "确定=丢弃修改并关闭 / 取消=继续编辑",
+  "dialog.closeConfirm.title": "未保存的修改",
+  "dialog.closeConfirm.message": (n: unknown) =>
+    `${n} 个标签有未保存的修改。保存并关闭？`,
+  "dialog.closeConfirm.message.hint": "确定=保存并关闭 / 取消=继续选择",
+  "dialog.closeConfirm.discardAsk": "不保存直接关闭？（修改将丢失，未命名标签可从草稿恢复）",
+  "dialog.closeConfirm.save": "保存并关闭",
+  "dialog.closeConfirm.dontSave": "不保存",
+  "dialog.closeConfirm.cancel": "取消",
   "dialog.closeOthers": (n: unknown) =>
     `有 ${n} 个标签未保存，确定关闭它们吗？`,
   "dialog.closeOthers.hint": "确定=丢弃修改并关闭 / 取消=保留",
@@ -111,6 +122,7 @@ const zh: Dict = {
   "status.minutes": "分钟",
   "status.about": "约",
   "status.cycleHint": "点击切换显示项",
+  "status.saveFailed": "自动保存失败",
 
   // filetree
   "filetree.mobileHint": "移动端不支持文件树浏览，请用\"打开\"按钮选择文件。",
@@ -147,12 +159,15 @@ const en: Dict = {
   "toolbar.mode.read": "Read",
   "toolbar.mode.edit": "Edit",
   "toolbar.toggleTheme": "Toggle theme",
+  "toolbar.toggleLocale": "Toggle Chinese/English",
   "toolbar.settings": "Settings",
   "toolbar.md.assoc": "Set as default .md app (register to system)",
   "toolbar.md.assoc.registered": "Set as default .md app (click to unregister)",
   "toolbar.md.assoc.register": "Register .md association",
   "toolbar.md.assoc.unregister": "Unregister .md association",
   "toolbar.dirty": "●",
+  "toolbar.undo": "Undo (Ctrl+Z)",
+  "toolbar.redo": "Redo (Ctrl+Y)",
 
   // tab
   "tab.close": "Close",
@@ -190,6 +205,14 @@ const en: Dict = {
   // dialogs
   "dialog.unsavedClose": "There are unsaved changes. Close anyway?",
   "dialog.unsavedClose.hint": "OK = discard changes and close / Cancel = keep editing",
+  "dialog.closeConfirm.title": "Unsaved changes",
+  "dialog.closeConfirm.message": (n: unknown) =>
+    `${n} tab(s) have unsaved changes. Save and close?`,
+  "dialog.closeConfirm.message.hint": "OK = save and close / Cancel = choose",
+  "dialog.closeConfirm.discardAsk": "Close without saving? (Changes will be lost; untitled tabs can be recovered from drafts)",
+  "dialog.closeConfirm.save": "Save and close",
+  "dialog.closeConfirm.dontSave": "Don't save",
+  "dialog.closeConfirm.cancel": "Cancel",
   "dialog.closeOthers": (n: unknown) =>
     `${n} tab(s) have unsaved changes. Close them?`,
   "dialog.closeOthers.hint": "OK = discard changes and close / Cancel = keep",
@@ -230,6 +253,7 @@ const en: Dict = {
   "status.minutes": "min",
   "status.about": "about",
   "status.cycleHint": "Click to toggle stats",
+  "status.saveFailed": "Auto-save failed",
 
   // filetree
   "filetree.mobileHint": "File tree browsing is not supported on mobile. Use the \"Open\" button to pick a file.",

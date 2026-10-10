@@ -3,7 +3,7 @@
   import Editor from "./Editor.svelte";
   import Preview from "./Preview.svelte";
   import { syncScroll } from "./scrollSync.ts";
-  import { mode } from "../stores/mode.ts";
+  import { mode, saveTabMode, getTabMode } from "../stores/mode.ts";
   import { doc, setContent, activeId } from "../stores/doc.ts";
   import { outline } from "../stores/outline.ts";
   import { scheduleAutoSave } from "../stores/fileWatch.ts";
@@ -13,6 +13,9 @@
   let previewComponent: Preview;
   let editorComponent: Editor;
   let detachSync: (() => void) | null = null;
+
+  // 记录上次活动标签，用于检测标签切换
+  let lastActiveId = $activeId;
 
   function handleInput(v: string) {
     setContent(v);
@@ -39,6 +42,16 @@
     }
   }
 
+  /** 撤销（转发给 Editor，供工具栏按钮调用） */
+  export function undo() {
+    editorComponent?.undo?.();
+  }
+
+  /** 重做（转发给 Editor，供工具栏按钮调用） */
+  export function redo() {
+    editorComponent?.redo?.();
+  }
+
   // 滚动同步：编辑器滚动 -> 预览滚动（仅分栏模式）
   function setupSync() {
     if (detachSync) {
@@ -58,6 +71,14 @@
     requestAnimationFrame(setupSync);
   }
 
+  // 切标签：存出旧标签的模式、恢复新标签的模式（使不同文件可处于不同模式）
+  $: if ($activeId !== lastActiveId) {
+    if (lastActiveId) saveTabMode(lastActiveId, $mode);
+    const saved = getTabMode($activeId);
+    if (saved && saved !== $mode) mode.set(saved);
+    lastActiveId = $activeId;
+  }
+
   onMount(() => {
     requestAnimationFrame(setupSync);
   });
@@ -65,10 +86,10 @@
 
 <div class="pane" data-mode={$mode}>
   <div class="pane-col editor-col" bind:this={editorEl}>
-    <Editor value={$doc.content} onInput={handleInput} bind:this={editorComponent} />
+    <Editor value={$doc.content} tabId={$activeId} onInput={handleInput} bind:this={editorComponent} />
   </div>
   <div class="pane-col preview-col" bind:this={previewEl}>
-    <Preview source={$doc.content} mode={$mode} bind:this={previewComponent} />
+    <Preview source={$doc.content} mode={$mode} tabId={$activeId} bind:this={previewComponent} />
   </div>
 </div>
 

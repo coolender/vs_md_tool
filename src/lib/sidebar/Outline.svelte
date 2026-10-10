@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { outline } from "../stores/outline.ts";
+  import { outline, activeHeadingId } from "../stores/outline.ts";
   import { t } from "../i18n/index.ts";
 
   // props
@@ -15,9 +15,9 @@
     <div class="empty">{$t("doc.emptyHeading")}</div>
   {:else}
     <ul>
-      {#each $outline as item}
+      {#each $outline as item (item.id)}
         <li
-          class="lv-{item.level}"
+          class="lv-{item.level} {$activeHeadingId === item.id ? 'active' : ''}"
           style="padding-left: {indent(item.level)}px"
         >
           <button class="outline-btn" on:click={() => onJump(item.id)} title={item.text}>
@@ -87,6 +87,19 @@
   }
   .lv-1 { font-weight: 600; color: var(--fg); }
   .lv-1 .dot { background: var(--accent); }
+  /* 当前阅读位置高亮：左侧色条 + 加粗 */
+  li.active {
+    background: var(--bg-soft);
+  }
+  li.active .outline-btn {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  li.active .dot {
+    background: var(--accent);
+    width: 5px;
+    height: 5px;
+  }
   .text {
     overflow: hidden;
     text-overflow: ellipsis;

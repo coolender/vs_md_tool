@@ -134,20 +134,28 @@ export async function renderTo(
   const mermaidNodes = container.querySelectorAll<HTMLElement>(".mermaid");
   if (mermaidNodes.length > 0) {
     const nodes = Array.from(mermaidNodes);
-    try {
-      const mod = await ensureMermaid();
-      nodes.forEach((n) => {
+    const mod = await ensureMermaid();
+    // 逐个渲染：单个图的语法错误不影响其它图。
+    // mermaid.run 对单图语法错误会在该节点内显示错误信息（不抛异常），
+    // 仅在 JS 层面异常（如初始化失败）时才 reject。
+    for (const n of nodes) {
+      const src = n.getAttribute("data-source") ?? "";
+      try {
         n.removeAttribute("data-processed");
-        n.innerHTML = n.getAttribute("data-source") ?? "";
-      });
-      await mod.default.run({ nodes });
-    } catch (e) {
-      console.error("[render] Mermaid 渲染失败:", e);
-      // 失败兜底：显示原始 mermaid 源码 + 错误提示，便于排查
-      nodes.forEach((n) => {
-        const src = n.getAttribute("data-source") ?? "";
-        n.innerHTML = `<pre class="mermaid-error" style="color:var(--danger, #d33);padding:0.6em;border:1px dashed currentColor;border-radius:4px;white-space:pre-wrap">Mermaid 渲染失败:\n${src}</pre>`;
-      });
+        // 用 textContent 而非 innerHTML 设置源码——mermaid.run 读取文本内容，
+        // 用 innerHTML 会让含 HTML 的恶意源码（如 <img onerror=...>）被解析执行。
+        n.textContent = src;
+        await mod.default.run({ nodes: [n] });
+      } catch (e) {
+        console.error("[render] Mermaid 渲染失败:", e, "\n源码:\n", src);
+        // 错误兜底：转义源码后再注入，避免 XSS
+        n.textContent = `Mermaid 渲染失败:\n${src}`;
+        n.className = "mermaid-error";
+        n.setAttribute(
+          "style",
+          "color:var(--danger, #d33);padding:0.6em;border:1px dashed currentColor;border-radius:4px;white-space:pre-wrap",
+        );
+      }
     }
   }
 }

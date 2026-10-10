@@ -6,7 +6,7 @@
   import EditorPane from "./lib/editor/EditorPane.svelte";
   import Sidebar from "./lib/sidebar/Sidebar.svelte";
   import { mode } from "./lib/stores/mode.ts";
-  import { doc, markSaved, openNew, openFileInTab, closeTab, cycleTab, anyDirty, activeId } from "./lib/stores/doc.ts";
+  import { doc, markSaved, openNew, openFileInTab, closeTab, cycleTab, anyDirty, dirtyTabs, activeId } from "./lib/stores/doc.ts";
   import { theme } from "./lib/theme/theme.ts";
   import { ensureHighlighter } from "./lib/markdown/parser.ts";
   import { resetMermaidTheme } from "./lib/markdown/render.ts";
@@ -16,6 +16,8 @@
   import { loadThemePrefs } from "./lib/stores/themePrefs.ts";
   import { loadBookmarks } from "./lib/stores/bookmarks.ts";
   import { startFileWatcher } from "./lib/stores/fileWatch.ts";
+  import { listDrafts } from "./lib/stores/drafts.ts";
+  import { restoreDrafts } from "./lib/stores/doc.ts";
   import { get } from "svelte/store";
   import { tr } from "./lib/i18n/index.ts";
 
@@ -31,6 +33,7 @@
     setupShortcuts();
     setupSingleInstanceListener();
     setupMobileIntentListener();
+    restoreSession();
     openStartupFile();
     // 文件外部变动检测：移动端沙盒语义不同，暂不启用轮询
     if (!isMobile) startFileWatcher();
@@ -47,7 +50,7 @@
     updateSettings({ sidebarVisible: !$settings.sidebarVisible });
   }
 
-  // 关闭前未保存提示（Tauri）：检查所有标签
+  // 关闭前未保存提示（Tauri）：三选一——保存并关闭 / 不保存 / 取消
   async function setupCloseGuard() {
     if (!isTauri) return;
     try {
@@ -56,14 +59,55 @@
       win.onCloseRequested(async (e) => {
         if (!anyDirty()) return;
         e.preventDefault();
-        const confirm = window.confirm(tr("dialog.unsavedClose"));
-        if (confirm) {
-          await win.destroy();
+        const dirty = dirtyTabs();
+        const choice = await askCloseChoice(dirty.length);
+        if (choice === "cancel") return; // 留在编辑
+        if (choice === "save") {
+          const ok = await saveAllDirty(dirty);
+          if (!ok) return; // 保存失败则不关闭，让用户处理
         }
+        // choice === "discard" 或保存成功 → 关闭
+        await win.destroy();
       });
     } catch {
       /* ignore */
     }
+  }
+
+  /** 关闭前三选一对话框：保存 / 不保存 / 取消。
+   *  浏览器原生只有 confirm（两按钮），用两次 confirm 串联实现三选项。 */
+  async function askCloseChoice(n: number): Promise<"save" | "discard" | "cancel"> {
+    // 第一问：保存并关闭？
+    const msg = tr("dialog.closeConfirm.message", n);
+    if (window.confirm(msg + "\n\n" + tr("dialog.closeConfirm.message.hint"))) return "save";
+    // 第二问：不保存直接关闭？（取消 = 继续编辑）
+    if (window.confirm(tr("dialog.closeConfirm.discardAsk"))) {
+      return "discard";
+    }
+    return "cancel";
+  }
+
+  /** 保存所有未保存标签。已命名文件写回原路径；未命名标签跳过（需用户手动另存）。
+   *  返回是否全部成功。 */
+  async function saveAllDirty(dirty: { id: string; path: string | null; content: string }[]): Promise<boolean> {
+    let allOk = true;
+    for (const t of dirty) {
+      if (!t.path) {
+        // 未命名标签无法自动保存到原路径，跳过（草稿已由 autosave 兜底）
+        continue;
+      }
+      try {
+        const saved = await saveFile(t.path, t.content);
+        if (saved) {
+          markSaved(saved);
+          pushRecent(saved);
+        }
+      } catch (e) {
+        allOk = false;
+        alert(tr("dialog.saveFailed") + String(e));
+      }
+    }
+    return allOk;
   }
 
   // 全局快捷键
@@ -197,6 +241,22 @@
   }
 
   /**
+   * 崩溃/会话恢复：启动时若存在草稿（上次崩溃/未正常关闭的未命名标签），
+   * 静默恢复为脏标签。草稿仅在崩溃/未正常关闭单标签时残留
+   * （正常关闭单标签已删草稿），静默恢复符合"防丢失"意图。
+   * 恢复后为脏标签（●），用户可保存或关闭。
+   */
+  async function restoreSession() {
+    if (!isTauri || isMobile) return;
+    try {
+      const drafts = await listDrafts();
+      if (drafts.length) restoreDrafts(drafts);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /**
    * 监听 single-instance 事件：当应用已在运行、用户再次双击 .md 时，
    * 已有实例会收到 open-file-request 事件，携带待打开文件的路径。
    * 用 Rust 侧 read_text_file 命令读取内容（绕开 fs 插件 scope 限制）。
@@ -290,7 +350,7 @@
 </script>
 
 <div class="app" data-mode={$mode}>
-  <Toolbar />
+  <Toolbar onUndo={() => editorPaneRef?.undo?.()} onRedo={() => editorPaneRef?.redo?.()} />
   <TabBar />
 
   <div class="body">

@@ -108,5 +108,10 @@ export function moveBookmark(path: string, group: string) {
 }
 
 function samePath(a: string, b: string): boolean {
-  return a.replace(/\\/g, "/").toLowerCase() === b.replace(/\\/g, "/").toLowerCase();
+  const na = a.replace(/\\/g, "/");
+  const nb = b.replace(/\\/g, "/");
+  // Windows 路径不区分大小写；macOS/Linux 默认区分大小写
+  return typeof navigator !== "undefined" && /Win/.test(navigator.platform)
+    ? na.toLowerCase() === nb.toLowerCase()
+    : na === nb;
 }

@@ -3,12 +3,18 @@
   import { doc, openNew, markSaved, openFileInTab } from "../stores/doc.ts";
   import { basename } from "../utils.ts";
   import { theme } from "../theme/theme.ts";
-  import { openFile, saveFile, saveAsFile, readTextFile, isTauri, isMobile } from "../tauri/fs.ts";
+  import { openFile, saveFile, saveAsFile, readTextFile, isTauri, isMobile, isWindows } from "../tauri/fs.ts";
   import { pushRecent, recentFiles } from "../stores/recent.ts";
   import { settings, updateSettings } from "../stores/settings.ts";
   import { themePrefs, updateThemePrefs } from "../stores/themePrefs.ts";
   import { t, tr } from "../i18n/index.ts";
+  import { editorHistory } from "../editor/editorState.ts";
+  import { saveError } from "../stores/fileWatch.ts";
   import Bookmarks from "./Bookmarks.svelte";
+
+  // 撤销/重做回调（由 App 注入，转发到 EditorPane → Editor）
+  export let onUndo: () => void = () => {};
+  export let onRedo: () => void = () => {};
 
   let busy = false;
   let showOpenMenu = false;
@@ -114,6 +120,11 @@
     theme.toggle();
   }
 
+  // 中英文快速切换：循环 zh <-> en，放到工具栏方便英文用户
+  function toggleLocale() {
+    updateSettings({ locale: $settings.locale === "zh" ? "en" : "zh" });
+  }
+
   // —— .md 文件关联（绿色版主动注册，不自动写注册表）——
   let mdAssocState: "unknown" | "registered" | "not" = "unknown";
   let assocBusy = false;
@@ -158,8 +169,8 @@
     }
   }
 
-  // 启动时检查一次关联状态（仅桌面端，移动端无文件关联概念）
-  if (isTauri && !isMobile) void checkMdAssociation();
+  // 启动时检查一次关联状态（仅 Windows 桌面端；macOS/Linux 无注册表式关联）
+  if (isTauri && isWindows) void checkMdAssociation();
 </script>
 
 <svelte:window on:click={handleWindowClick} />
@@ -188,6 +199,11 @@
     </button>
     <button class="btn" on:click={handleSaveAs} title={tr("toolbar.saveAs")}>{$t("toolbar.saveAs")}</button>
     <button class="btn" on:click={handleExportHtml} title={tr("toolbar.export")}>{$t("toolbar.export")}</button>
+    <button class="btn icon" on:click={onUndo} disabled={!$editorHistory.canUndo} title={tr("toolbar.undo")} aria-label={tr("toolbar.undo")}>↶</button>
+    <button class="btn icon" on:click={onRedo} disabled={!$editorHistory.canRedo} title={tr("toolbar.redo")} aria-label={tr("toolbar.redo")}>↷</button>
+    {#if $saveError}
+      <span class="save-error" title={$saveError}>⚠</span>
+    {/if}
   </div>
 
   <div class="title" title={$doc.path ?? tr("doc.unsaved")}>
@@ -212,9 +228,17 @@
     <button class="btn icon" on:click={toggleTheme} title={tr("toolbar.toggleTheme")}>
       {$theme === "dark" ? "☀" : $theme === "light" ? "☾" : "◐"}
     </button>
+    <button
+      class="btn locale"
+      on:click={toggleLocale}
+      title={tr("toolbar.toggleLocale")}
+      aria-label={tr("toolbar.toggleLocale")}
+    >
+      {$settings.locale === "zh" ? "中" : "En"}
+    </button>
     <Bookmarks />
     <button class="btn icon" on:click={() => (showSettings = true)} title={tr("toolbar.settings")} aria-label={tr("toolbar.settings")}>⚙</button>
-    {#if isTauri && !isMobile}
+    {#if isTauri && isWindows}
       <button
         class="btn assoc {mdAssocState === 'registered' ? 'active' : ''}"
         on:click={toggleMdAssociation}
@@ -242,7 +266,7 @@
       </label>
       <label class="settings-row">
         <span>{$t("settings.autoSaveDelay")}</span>
-        <input type="number" min="500" max="10000" step="100" value={$settings.autoSaveDelay} on:change={(e) => updateSettings({ autoSaveDelay: Math.max(500, Number(e.currentTarget.value) || 1500) })} />
+        <input type="number" min="1000" max="600000" step="500" value={$settings.autoSaveDelay} on:change={(e) => updateSettings({ autoSaveDelay: Math.max(1000, Number(e.currentTarget.value) || 300000) })} />
         <span class="hint">{$t("settings.ms")}</span>
       </label>
       <label class="settings-row">
@@ -256,8 +280,8 @@
           value={$settings.locale}
           on:change={(e) => updateSettings({ locale: e.currentTarget.value as "zh" | "en" })}
         >
-          <option value="zh">{$t("settings.language.zh")}</option>
-          <option value="en">{$t("settings.language.en")}</option>
+          <option value="zh">中文</option>
+          <option value="en">English</option>
         </select>
       </label>
 
@@ -365,6 +389,24 @@
   .btn.assoc:disabled {
     opacity: 0.5;
     cursor: default;
+  }
+  .btn.locale {
+    padding: 0 0.55rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--fg-soft);
+    border: 1px solid var(--border-soft);
+  }
+  .btn.locale:hover {
+    background: var(--bg-soft);
+    color: var(--fg);
+  }
+  .save-error {
+    color: #d33;
+    font-size: 14px;
+    cursor: help;
+    display: inline-flex;
+    align-items: center;
   }
   .open-wrap {
     position: relative;

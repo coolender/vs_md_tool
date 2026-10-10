@@ -254,6 +254,16 @@ pub fn write_binary_file(path: String, data: Vec<u8>) -> Result<String, String> 
     Ok(path)
 }
 
+/// 删除文件（用于清理草稿）。文件不存在也返回 true（幂等）。
+#[tauri::command]
+pub fn delete_file(path: String) -> bool {
+    match fs::remove_file(&path) {
+        Ok(_) => true,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => true,
+        Err(_) => false,
+    }
+}
+
 /// 取当前文档所在目录（用于图片保存位置、文件树根）。
 #[tauri::command]
 pub fn dir_of(path: String) -> Option<String> {

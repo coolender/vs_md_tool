@@ -8,3 +8,7 @@ export interface OutlineItem {
 }
 
 export const outline = writable<OutlineItem[]>([]);
+
+/** 当前阅读区视口内最靠上的标题 id（用于侧栏大纲高亮联动）。
+ *  null 表示无标题在视口内（如文档顶部）。 */
+export const activeHeadingId = writable<string | null>(null);

@@ -73,6 +73,7 @@ pub fn run() {
             commands::list_dir,
             commands::parent_dir,
             commands::write_binary_file,
+            commands::delete_file,
             commands::dir_of,
             assoc::register_md_association,
             assoc::is_md_association_registered,

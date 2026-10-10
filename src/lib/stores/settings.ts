@@ -21,7 +21,7 @@ export interface Settings {
 
 const DEFAULTS: Settings = {
   autoSave: true,
-  autoSaveDelay: 1500,
+  autoSaveDelay: 300000,
   watchFiles: true,
   sidebarVisible: true,
   locale: "zh",
