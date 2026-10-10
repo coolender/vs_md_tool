@@ -24,15 +24,17 @@ VsMReader 是一个**体积仅几 MB、免安装、可随身携带**的 Markdown
 
 ## 从源码构建
 
+不想下载预编译程序？也可以自行编译。
+
 ### 环境要求
 
 - [Node.js](https://nodejs.org/) 18+ 与 pnpm
 - [Rust](https://www.rust-lang.org/) stable 工具链
 - 平台依赖：
   - **Windows**：Visual Studio C++ Build Tools / WebView2
-  - **macOS**：Xcode Command Line Tools
+  - **macOS**：Xcode Command Line Tools（`xcode-select --install`）
 
-### 构建步骤
+### 本地构建
 
 ```bash
 # 1. 安装依赖
@@ -47,7 +49,36 @@ pnpm tauri build
 
 构建产物在 `src-tauri/target/release/bundle/` 下。
 
-> ⚠️ 跨平台构建限制：Windows 的 `.exe` 只能在 Windows 上构建，macOS 的 `.dmg` 只能在 macOS 上构建。如需同时发布多平台，推荐用 GitHub Actions 矩阵构建（见下文"发布流程"）。
+> ⚠️ **跨平台构建限制**：Tauri 只能为当前系统构建——Windows 上只能产出 `.exe`，macOS 上只能产出 `.dmg`。本地没有 Mac 又想要 macOS 包？用下面的 GitHub Actions 自动构建。
+
+### 用 GitHub Actions 自动构建多平台（无需 Mac）
+
+本地没有 macOS 也能产出三平台安装包：把仓库推到 GitHub，打 tag 即自动在云端构建并发布 Release。
+
+1. 在 GitHub 创建仓库并推送代码（可与 Gitee 双推）。
+2. 仓库根目录添加 `.github/workflows/release.yml`（构建脚本），核心是三平台矩阵：
+   ```yaml
+   strategy:
+     matrix:
+       platform: [windows-latest, macos-latest, ubuntu-latest]
+   steps:
+     - uses: actions/checkout@v4
+     - uses: pnpm/action-setup@v4
+     - uses: actions/setup-node@v4
+       with: { node-version: 20, cache: pnpm }
+     - uses: dtolnay/rust-toolchain@stable
+     - run: pnpm install
+     - run: pnpm tauri build
+     - uses: tauri-apps/tauri-action@v0
+       with:
+         tagName: ${{ github.ref_name }}
+         releaseName: ${{ github.ref_name }}
+         releaseDraft: true
+   ```
+3. 打 tag 触发：`git tag v0.1.0 && git push origin v0.1.0`
+4. GitHub 在 windows/macos/ubuntu 三个云端环境并行构建，产物自动挂到 Release 页。
+
+> 完整 workflow 模板见 [Tauri 官方文档](https://v2.tauri.app/distribute/ci-cd/)。GitHub Actions 对公开仓库免费。
 
 ---
 
@@ -402,7 +433,9 @@ A：超大文件（>100KB）实时渲染会变慢，可切到"编辑"模式专�
 
 ## 十五、发布流程
 
-本项目采用**手动发布 Release** 的方式提供可运行程序：
+本项目提供两种发布方式：
+
+### 方式 A：手动发布（适合单平台 / 首次发版）
 
 1. 在对应平台执行 `pnpm tauri build`：
    - Windows 上产出 `src-tauri/target/release/vsmreader.exe`（绿色版）和 `bundle/nsis/VsMReader_0.1.0_x64-setup.exe`（安装包）。
@@ -410,7 +443,9 @@ A：超大文件（>100KB）实时渲染会变慢，可切到"编辑"模式专�
 2. 在仓库（Gitee / GitHub）**创建 Release**，填写版本号与更新日志，将上述构建产物作为附件上传。
 3. 用户在 Releases 页面直接下载对应平台文件即可运行，无需编译。
 
-> 跨平台构建限制：Windows 产物只能在 Windows 上构建，macOS 产物只能在 macOS 上构建。后续如需自动化多平台发布，可接入 GitHub Actions 矩阵构建。
+### 方式 B：GitHub Actions 自动发布（适合多平台 / 长期维护）
+
+本地没有 Mac 也能一键产出三平台安装包，见上文"从源码构建 → 用 GitHub Actions 自动构建多平台"。打 tag 即触发云端构建并自动发布 Release。
 
 ---
 
