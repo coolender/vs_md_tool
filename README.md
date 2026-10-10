@@ -367,10 +367,10 @@ VsMReader 围绕"编辑时绝不丢内容"做了多层保护。
 ## 十三、常见问题
 
 **Q：双击 .md 没用？**
-A：先在 VsMReader 里点 `.md` 按钮注册关联，再到系统"打开方式"里勾选一次"始终使用 VsMReader 打开 .md"（见第一节）。
+A：Windows 上先在 VsMReader 里点 `.md` 按钮注册关联，再到系统"打开方式"里勾选一次"始终使用 VsMReader 打开 .md"（见第一节）。macOS 上安装 `.dmg` 后双击 `.md` 默认走系统文件关联，无需此按钮。
 
 **Q：绿色版数据存在哪？**
-A：默认存在用户目录的 `%APPDATA%\com.vsmreader.app\` 下（设置 `settings.json`、主题偏好 `themeprefs.json`、书签 `bookmarks.json`、草稿 `drafts/`）；若 exe 同级有 `portable.txt`，则存在 exe 旁的 `data/` 文件夹，适合 U 盘携带。
+A：Windows 默认存在 `%APPDATA%\com.vsmreader.app\`（设置 `settings.json`、主题偏好 `themeprefs.json`、书签 `bookmarks.json`、草稿 `drafts/`）；macOS 在 `~/Library/Application Support/com.vsmreader.app/`。若 exe 同级有 `portable.txt`，则存在 exe 旁的 `data/` 文件夹，适合 U 盘携带（仅 Windows 绿色版）。
 
 **Q：图片不显示？**
 A：确认路径正确。相对路径是相对 `.md` 文件所在目录的。绝对路径用反斜杠或正斜杠均可。
@@ -396,8 +396,24 @@ A：超大文件（>100KB）实时渲染会变慢，可切到"编辑"模式专�
 
 - **前端**：Svelte 5 + TypeScript + Vite，CodeMirror 6 编辑器，markdown-it + Shiki + KaTeX + Mermaid 渲染。
 - **后端**：Tauri 2（Rust），单实例、窗口状态记忆、文件关联、本地文件读写。
-- **构建**：`pnpm tauri build` 产出绿色 exe + NSIS 安装包。
+- **构建**：`pnpm tauri build` 产出 Windows（绿色 exe + NSIS 安装包）与 macOS（dmg）。
 
 ---
 
-享受轻量的 Markdown 体验。如有建议或问题，欢迎反馈。
+## 十五、发布流程
+
+本项目采用**手动发布 Release** 的方式提供可运行程序：
+
+1. 在对应平台执行 `pnpm tauri build`：
+   - Windows 上产出 `src-tauri/target/release/vsmreader.exe`（绿色版）和 `bundle/nsis/VsMReader_0.1.0_x64-setup.exe`（安装包）。
+   - macOS 上产出 `bundle/dmg/VsMReader_0.1.0_x64.dmg`。
+2. 在仓库（Gitee / GitHub）**创建 Release**，填写版本号与更新日志，将上述构建产物作为附件上传。
+3. 用户在 Releases 页面直接下载对应平台文件即可运行，无需编译。
+
+> 跨平台构建限制：Windows 产物只能在 Windows 上构建，macOS 产物只能在 macOS 上构建。后续如需自动化多平台发布，可接入 GitHub Actions 矩阵构建。
+
+---
+
+## 许可证
+
+[MIT License](./LICENSE) — 可自由使用、修改、分发。
