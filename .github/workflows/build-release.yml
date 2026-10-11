@@ -61,8 +61,10 @@ jobs:
       - name: Build Tauri app
         run: pnpm tauri build --target ${{ matrix.target }}
 
-      # 调试：打印产物路径，确认绿色 exe 确实生成
+      # 调试：打印产物路径，确认绿色 exe 确实生成。
+      # Windows runner 默认是 PowerShell，不认 ls/grep，显式用 bash。
       - name: List build output
+        shell: bash
         run: |
           echo "=== release 目录 ==="
           ls -la src-tauri/target/${{ matrix.target }}/release | grep -iE 'vsmreader|\.exe' || true
