@@ -1,30 +1,26 @@
 name: Build & Release
-# 触发条件：
-#   1. 推送 v* 标签 → 全平台构建 + 创建 Draft Release（草稿，需手动发布）
-#   2. 手动触发（workflow_dispatch）→ 只构建，不建 Release，用于测试 CI 是否跑通
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
 
-# tauri-action 和 softprops 都需要写权限来创建 Release / 上传资源
 permissions:
   contents: write
 
 jobs:
   build:
     strategy:
-      fail-fast: false # 某平台失败不影响其它平台继续跑完
+      fail-fast: false
       matrix:
         include:
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             label: windows
-          - platform: macos-latest # M 系列 ARM 芯片
+          - platform: macos-latest
             target: aarch64-apple-darwin
             label: macos-arm
-          - platform: macos-latest # Intel 芯片
+          - platform: macos-latest
             target: x86_64-apple-darwin
             label: macos-intel
     runs-on: ${{ matrix.platform }}
@@ -51,7 +47,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Tauri 构建，tag触发时生成草稿Release，自动上传NSIS/dmg包
       - name: Build Tauri app
         id: build-tauri
         uses: tauri-apps/tauri-action@v0
@@ -60,39 +55,17 @@ jobs:
         with:
           tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
           releaseName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
-          releaseDraft: true # 草稿状态，你确认后再点「Publish」发布
+          releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target }}
 
-      # 【调试用】列出release目录文件，方便查看真实exe文件名
-      - name: List release directory files
-        if: matrix.label == 'windows'
-        run: |
-          cd src-tauri/target/x86_64-pc-windows-msvc/release
-          ls
+      # ========== 调试：打印打包目录所有文件 ==========
+      - name: List bundle output files
+        run: ls src-tauri/target/${{ matrix.target }}/release/bundle/*
 
-      # 上传绿色便携exe为临时Artifact（Windows，手动/Tag触发都会执行）
-      - name: Upload portable exe artifact
-        if: matrix.label == 'windows'
+      # ========== 上传产物，Artifact名称带label，避免同名冲突 ==========
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: portable-exe
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/vsmreader.exe
-
-# 【后置Job】所有构建完成后，把便携exe追加到Release（仅tag触发）
-  attach-portable:
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download portable exe artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: portable-exe
-
-      - name: Append portable exe to draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: vsmreader.exe
-          append_body: true
+          name: artifact-${{ matrix.label }}
+          path: src-tauri/target/${{ matrix.target }}/release/bundle/
