@@ -1,423 +1,425 @@
 # VsMReader
 
-> 轻量级 Markdown 阅读器 / 编辑器 · Windows · macOS · 基于 Tauri 2 + Svelte 5 · [MIT License](./LICENSE)
+> Lightweight Markdown reader / editor · Windows · macOS · Tauri 2 + Svelte 5 · [MIT License](./LICENSE)
+
+[简体中文](README_CN.md) | **English**
 
 ![license](https://img.shields.io/badge/license-MIT-blue)
 ![platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 ![tauri](https://img.shields.io/badge/Tauri-2-orange)
 
-VsMReader 是一个**体积仅几 MB、免安装、可随身携带**的 Markdown 工具，兼顾**阅读**与**编辑**，内置语法高亮、数学公式、流程图、本地图片支持，以及一整套防丢失机制。
+VsMReader is a **only a few MB, installation-free, portable** Markdown tool for both **reading** and **editing**, with built-in syntax highlighting, math formulas, flowcharts, local image support, and a full set of anti-loss mechanisms.
 
-## 👇 下载
+## 👇 Download
 
-在 Releases 发布页下载对应平台的程序，开箱即用，无需编译。两个镜像源任选其一：
+Download the build for your platform from the Releases page — ready to run, no compilation needed. Either mirror works:
 
-| 平台 | 文件 | 说明 |
-|------|------|------|
-| Windows | `vsmreader.exe` | 🟢 绿色单文件，双击即用，免安装 |
-| Windows | `VsMReader_0.1.0_x64-setup.exe` | NSIS 安装包，双击安装 |
-| macOS | `VsMReader_0.1.0_x64.dmg` | 拖入 Applications 安装 |
+| Platform | File | Notes |
+|----------|------|-------|
+| Windows | `vsmreader.exe` | 🟢 Portable single file, double-click to run, no install |
+| Windows | `VsMReader_0.1.0_x64-setup.exe` | NSIS installer |
+| macOS | `VsMReader_0.1.0_x64.dmg` | Drag into Applications to install |
 
-> 两个源内容完全一致，任选一个下载即可。
-> - 国内用户推荐 Gitee：[Gitee Releases](https://gitee.com/coolender/vs_md_tool/releases)
-> - 海外 / macOS 用户推荐 GitHub：[GitHub Releases](https://github.com/coolender/vs_md_tool/releases)
+> Both mirrors host identical files — pick either one.
+> - Users in China may prefer Gitee: [Gitee Releases](https://gitee.com/coolender/vs_md_tool/releases)
+> - Overseas / macOS users may prefer GitHub: [GitHub Releases](https://github.com/coolender/vs_md_tool/releases)
 
-> Windows 绿色版若希望数据随 exe 走（U 盘便携），在 exe 同级目录新建空 `portable.txt` 即可。
+> To make the portable Windows exe carry its data with it (USB-stick mode), create an empty `portable.txt` next to the exe.
 
 ---
 
-## 从源码构建
+## Build from source
 
-不想下载预编译程序？也可以自行编译。
+Don't want the prebuilt binaries? You can compile it yourself.
 
-### 环境要求
+### Requirements
 
-- [Node.js](https://nodejs.org/) 18+ 与 pnpm
-- [Rust](https://www.rust-lang.org/) stable 工具链
-- 平台依赖：
-  - **Windows**：Visual Studio C++ Build Tools / WebView2
-  - **macOS**：Xcode Command Line Tools（`xcode-select --install`）
+- [Node.js](https://nodejs.org/) 18+ and pnpm
+- [Rust](https://www.rust-lang.org/) stable toolchain
+- Platform dependencies:
+  - **Windows**: Visual Studio C++ Build Tools / WebView2
+  - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
 
-### 本地构建
+### Local build
 
 ```bash
-# 1. 安装依赖
+# 1. Install dependencies
 pnpm install
 
-# 2. 开发模式（热重载）
+# 2. Dev mode (hot reload)
 pnpm tauri dev
 
-# 3. 生产构建（产出 exe / dmg / 安装包）
+# 3. Production build (produces exe / dmg / installer)
 pnpm tauri build
 ```
 
-构建产物在 `src-tauri/target/release/bundle/` 下。
+Build artifacts are under `src-tauri/target/release/bundle/`.
 
-> ⚠️ **跨平台构建限制**：Tauri 只能为当前系统构建——Windows 上只能产出 `.exe`，macOS 上只能产出 `.dmg`。如需其他平台的安装包，请在对应系统上构建。
-
----
-
-## 使用手册
-
-### 一、安装与启动
-
-#### 方式 A：绿色版（推荐）
-
-拿到 `vsmreader.exe` 单文件，放到任意目录，**双击即可运行**，无需安装。
-
-- 不写注册表、不进系统目录、不驻留后台。
-- 想彻底卸载？直接删掉 exe 即可，干干净净。
-- 若希望"最近文件""窗口位置""设置"等数据随 exe 走（U 盘便携），在 exe 同级目录新建一个空的 `portable.txt` 文件即可——数据会存在 exe 旁的 `data/` 文件夹里。
-
-#### 方式 B：安装版
-
-运行 `VsMReader_0.1.0_x64-setup.exe`，按向导安装（无需管理员权限），会创建开始菜单快捷方式。
-
-#### 让 .md 默认用 VsMReader 打开（可选，仅 Windows）
-
-1. 启动 VsMReader，点击工具栏右侧的 **`.md`** 按钮。
-2. 弹出"已注册 .md 关联"提示后，有两种方式让**双击 .md 直接用 VsMReader 打开**：
-   - **方式一（推荐）**：右键任意 `.md` → 打开方式 → 选择其他应用 → 选 VsMReader → 勾选"始终使用此应用打开 .md 文件"。
-   - **方式二**：设置 → 应用 → 默认应用 → 按文件类型设置 → 找到 `.md` → 选 VsMReader。
-3. 以后双击任意 `.md`，会直接在 VsMReader 中打开。
-
-> 说明：Windows 10/11 的安全机制不允许程序直接抢占"默认应用"，必须由你在系统设置里确认一次。这是 Windows 的限制，不是软件问题。点击 `.md` 按钮只是把 VsMReader 注册进"打开方式"列表，真正的"默认"仍需你手动勾选一次。
-> 想取消关联？再次点击工具栏的 `.md` 按钮（此时显示为 `✓ .md`），确认即可恢复原状。
+> ⚠️ **Cross-platform build limitation**: Tauri can only build for the current OS — Windows produces `.exe`, macOS produces `.dmg`. For another platform's installer, build on that platform.
 
 ---
 
-## 二、界面概览
+## User manual
+
+### 1. Install & launch
+
+#### Option A: Portable (recommended)
+
+Take the `vsmreader.exe` single file, drop it anywhere, **double-click to run** — no installation.
+
+- No registry writes, no system folders, no background process.
+- To fully uninstall? Just delete the exe — clean.
+- To carry "recent files", "window position", "settings" etc. along with the exe (USB-stick mode), create an empty `portable.txt` next to it — data will live in a `data/` folder beside the exe.
+
+#### Option B: Installer
+
+Run `VsMReader_0.1.0_x64-setup.exe`, follow the wizard (no admin rights needed), creates a Start Menu shortcut.
+
+#### Make .md open with VsMReader by default (optional, Windows only)
+
+1. Launch VsMReader, click the **`.md`** button on the right of the toolbar.
+2. After the "registered .md association" prompt, set **double-click .md to open with VsMReader** via one of:
+   - **Option 1 (recommended)**: Right-click any `.md` → Open with → Choose another app → pick VsMReader → check "Always use this app to open .md files".
+   - **Option 2**: Settings → Apps → Default apps → Choose default apps by file type → find `.md` → pick VsMReader.
+3. From now on double-clicking any `.md` opens it directly in VsMReader.
+
+> Note: Windows 10/11 security prevents a program from directly grabbing "default app" status — you must confirm once in system settings. This is a Windows limitation, not a software issue. The `.md` button only registers VsMReader into the "Open with" list; the actual "default" still needs your manual check.
+> To undo the association? Click the `.md` button again (it now shows `✓ .md`), confirm to revert.
+
+---
+
+### 2. Interface overview
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ 新建 打开▾ 保存 另存 导出 ↶ ↷  文件名.md ●   分栏|阅读|编辑 ☾ 中 ⚙ .md │ ← 工具栏
+│ New Open▾ Save SaveAs Export ↶ ↷  filename.md ●  Split|Read|Edit ☾ En ⚙ .md │ ← Toolbar
 ├──────────────────────────────────────────────────────────────────────┤
-│ 标签1 ●×  标签2 ×  +  ▾                                            ⚠ │ ← 标签栏
+│ Tab1 ●×  Tab2 ×  +  ▾                                              ⚠ │ ← Tab bar
 ├────────────┬─────────────────────────────────────────────────────────┤
 │            │                                                       │
-│  大纲/文件  │            编辑区  /  预览区                          │
-│  (标题树)   │                                                       │
+│ Outline/   │            Editor  /  Preview                         │
+│ Files      │                                                       │
 │            │                                                       │
 ├────────────┴─────────────────────────────────────────────────────────┤
-│ 1,234 字 · 56 行 · 约 5 分钟          C:\path\to\file.md   ← 状态栏  │
+│ 1,234 chars · 56 lines · ~5 min          C:\path\to\file.md   ← Status bar │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **工具栏**：新建 / 打开（含最近文件）/ 保存 / 另存 / 导出 HTML / 撤销 ↶ / 重做 ↷ / 当前文件名与修改标记（●）/ 三模式切换 / 主题切换 / 中英文切换 / 设置 ⚙ / `.md` 关联。
-- **标签栏**：多文件以标签页形式打开，互不干扰；右侧 ▾ 也是最近文件列表；`+` 新建标签。
-- **侧栏**：两个标签页——**大纲**（自动提取标题树，点击跳转）和**文件**（浏览当前文档所在目录的文件树）。
-- **主区域**：根据模式显示"编辑 + 预览"或其中之一。
-- **状态栏**：字数 / 行数 / 阅读时间（点击切换显示项），右侧显示文件路径；自动保存失败时左侧出现红色 ⚠。
+- **Toolbar**: New / Open (with recent files) / Save / Save As / Export HTML / Undo ↶ / Redo ↷ / current filename & modified mark (●) / three-mode switch / theme switch / language switch / Settings ⚙ / `.md` association.
+- **Tab bar**: Multiple files open as independent tabs; the ▾ on the right is also the recent-files list; `+` creates a new tab.
+- **Sidebar**: Two tabs — **Outline** (auto-extracted heading tree, click to jump) and **Files** (browse the current document's directory tree).
+- **Main area**: Shows "editor + preview" or one of them, depending on the mode.
+- **Status bar**: Char count / line count / reading time (click to toggle items), file path on the right; a red ⚠ appears on the left when auto-save fails.
 
 ---
 
-## 三、三种模式
+### 3. Three modes
 
-顶部 `[分栏] [阅读] [编辑]` 一键切换，切换时不丢失光标和编辑状态。
+The top `[Split] [Read] [Edit]` switches instantly, preserving cursor and edit state.
 
-| 模式 | 说明 | 快捷键 |
-|------|------|--------|
-| **分栏** | 左源码、右实时预览 | `Ctrl+\` |
-| **阅读** | 全屏阅读，隐藏编辑区（默认模式） | `Ctrl+Shift+\` |
-| **编辑** | 全屏编辑，隐藏预览区 | `Ctrl+\`（从分栏切过去） |
+| Mode | Description | Shortcut |
+|------|-------------|----------|
+| **Split** | Source on the left, live preview on the right | `Ctrl+\` |
+| **Read** | Full-screen reading, hides the editor (default mode) | `Ctrl+Shift+\` |
+| **Edit** | Full-screen editing, hides the preview | `Ctrl+\` (from Split) |
 
-> 在分栏模式下，编辑器与预览滚动会自动同步。
-> **每个标签独立记忆模式**：标签 A 可以是编辑模式、标签 B 可以是阅读模式，切换标签时各自恢复。
-
----
-
-## 四、文件操作
-
-| 操作 | 方式 | 快捷键 |
-|------|------|--------|
-| 新建 | 工具栏"新建"或标签栏 `+` | `Ctrl+N` |
-| 打开 | 工具栏"打开" | `Ctrl+O` |
-| 打开最近文件 | "打开"旁的 ▾，或标签栏右侧 ▾ | — |
-| 保存 | 工具栏"保存" | `Ctrl+S` |
-| 另存为 | 工具栏"另存" | `Ctrl+Shift+S` |
-| 导出 HTML | 工具栏"导出" | `Ctrl+Shift+E` |
-| 切换标签 | 点击标签 / 循环 | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
-| 关闭标签 | 标签上的 × | `Ctrl+W` |
-| 切换侧栏显隐 | — | `Ctrl+B` |
-
-- **双击 .md 打开**：关联后，双击 `.md` 文件会直接在 VsMReader 新标签打开；若 VsMReader 已在运行，会把已有窗口拉到前台并打开该文件（不会开第二个窗口）。
+> In Split mode, editor and preview scroll in sync.
+> **Each tab remembers its own mode**: tab A can be in Edit, tab B in Read — switching tabs restores each one's state.
 
 ---
 
-## 五、编辑：人性化功能
+### 4. File operations
 
-VsMReader 内置了一整套 Markdown 编辑增强，让书写更顺手。
+| Operation | How | Shortcut |
+|-----------|-----|----------|
+| New | Toolbar "New" or tab bar `+` | `Ctrl+N` |
+| Open | Toolbar "Open" | `Ctrl+O` |
+| Open recent | The ▾ beside "Open", or the ▾ on the tab bar | — |
+| Save | Toolbar "Save" | `Ctrl+S` |
+| Save As | Toolbar "Save As" | `Ctrl+Shift+S` |
+| Export HTML | Toolbar "Export" | `Ctrl+Shift+E` |
+| Switch tab | Click tab / cycle | `Ctrl+Tab` / `Ctrl+Shift+Tab` |
+| Close tab | The × on the tab | `Ctrl+W` |
+| Toggle sidebar | — | `Ctrl+B` |
 
-### 5.1 格式快捷键（选中文字后按）
-
-| 快捷键 | 效果 | 说明 |
-|--------|------|------|
-| `Ctrl+B` | **加粗** `**…**` | 再按一次取消（幂等） |
-| `Ctrl+I` | *斜体* `*…*` | 再按一次取消 |
-| `` Ctrl+` `` | `行内代码` | 再按一次取消 |
-| `Ctrl+K` | 插入链接 | 无选区：插 `[](https://)` 光标在 `[]` 中；有选区：`[选中](https://)` 光标在 URL 处 |
-
-> 关键点：是对**选区包裹**，不是替换，所以不会丢字。
-
-### 5.2 标题与结构
-
-| 快捷键 | 效果 |
-|--------|------|
-| `Ctrl+1` ~ `Ctrl+6` | 设为 H1 ~ H6；已是同级标题则取消前缀 |
-| `Ctrl+8` | 插入分割线 `---` |
-| `Ctrl+Shift+T` | 插入 3×2 表格模板 |
-| `Ctrl+/` | 注释 `<!-- … -->`（选中有/无、已注释都会正确 toggle） |
-
-### 5.3 列表自动续行
-
-- 在 `- ` / `* ` / `+ ` / `1. ` / `- [ ]` 列表项末尾按 **回车**，自动续一行相同前缀。
-- 任务列表 `[x]` 续行时自动重置为 `[ ]`。
-- 有序列表 `1.` 续行时自动变 `2.`、`3.`……
-- **空项回车取消列表**（删掉前缀变空行），符合 Typora/Notion 习惯。
-
-### 5.4 括号与缩进
-
-- **自动配对**：输入 `(` 自动补 `)`；选中文字再输 `(` 会包裹成 `(文字)`；引号同理。
-- **配对高亮**：光标在括号旁时高亮对应另一半。
-- `Tab` 缩进、`Shift+Tab` 反缩进（列表内可做嵌套子项）。
-
-### 5.5 行操作
-
-| 快捷键 | 效果 |
-|--------|------|
-| `Alt+↑` / `Alt+↓` | 上移 / 下移当前行（或选中的多行） |
-| `Shift+Alt+↑` / `Shift+Alt+↓` | 向上 / 向下复制当前行 |
-| `Ctrl+D` | 删除当前行 |
-
-### 5.6 拖拽与粘贴
-
-- **拖入图片**：把图片文件拖进编辑器 → 自动插入 `![文件名](路径)`。
-- **拖入普通文件**：自动插入 `[文件名](路径)`。
-- **粘贴 URL 成链接**：选中一段文字，粘贴一个 `http(s)://` 链接 → 自动变成 `[选中文字](url)`；无选区时走普通粘贴。
-- **粘贴图片**：剪贴板是图片时，保存到文档同目录 `images/`，插入 `![](相对路径)`。
-
-### 5.7 撤销 / 重做 / 查找
-
-- 工具栏 **↶ / ↷** 按钮撤销 / 重做，按钮 disabled 态反映当前可否撤销/重做；快捷键 `Ctrl+Z` / `Ctrl+Y`。
-- `Ctrl+F` 打开查找栏（CodeMirror 内置），支持正则、区分大小写、整词。
+- **Double-click .md to open**: Once associated, double-clicking a `.md` opens it directly as a new tab in VsMReader; if VsMReader is already running, it brings the existing window to the front and opens the file (does not spawn a second window).
 
 ---
 
-## 六、渲染能力
+### 5. Editing: human-friendly features
 
-### 6.1 语法高亮
+VsMReader ships a full set of Markdown editing enhancements.
 
-代码块使用 **Shiki**（VS Code 同款引擎），支持 20+ 常用语言：JavaScript / TypeScript / Python / Rust / Go / Java / C / C++ / C# / PHP / Ruby / SQL / JSON / YAML / HTML / CSS / Bash / Markdown / Shell / Docker / Diff 等。主题随应用亮/暗自动切换。
+#### 5.1 Format shortcuts (select text, then press)
 
-### 6.2 数学公式（KaTeX）
+| Shortcut | Effect | Notes |
+|----------|--------|-------|
+| `Ctrl+B` | **bold** `**…**` | Press again to toggle off (idempotent) |
+| `Ctrl+I` | *italic* `*…*` | Press again to toggle off |
+| `` Ctrl+` `` | `inline code` | Press again to toggle off |
+| `Ctrl+K` | Insert link | No selection: inserts `[](https://)` with cursor in `[]`; with selection: `[selected](https://)` with cursor on the URL |
 
-- 行内：`$E=mc^2$`
-- 块级：`$$\int_0^1 x\,dx = \frac12$$`
+> Key point: it **wraps the selection**, never replaces — so no characters are lost.
 
-### 6.3 流程图（Mermaid）
+#### 5.2 Headings & structure
 
-用 ` ```mermaid ` 代码块即可，例如：
+| Shortcut | Effect |
+|----------|--------|
+| `Ctrl+1` ~ `Ctrl+6` | Set as H1 ~ H6; if already at that level, removes the prefix |
+| `Ctrl+8` | Insert horizontal rule `---` |
+| `Ctrl+Shift+T` | Insert a 3×2 table template |
+| `Ctrl+/` | Comment `<!-- … -->` (toggles correctly with/without selection, already-commented) |
+
+#### 5.3 List auto-continuation
+
+- Pressing **Enter** at the end of a `- ` / `* ` / `+ ` / `1. ` / `- [ ]` list item auto-continues with the same prefix.
+- Task-list `[x]` auto-resets to `[ ]` on continuation.
+- Ordered list `1.` becomes `2.`, `3.`… on continuation.
+- **Empty item + Enter cancels the list** (drops the prefix → blank line), matching Typora/Notion behavior.
+
+#### 5.4 Brackets & indentation
+
+- **Auto-pairing**: typing `(` auto-completes `)`; selecting text and typing `(` wraps it as `(text)`; quotes behave the same.
+- **Pair highlighting**: when the cursor is beside a bracket, the matching half is highlighted.
+- `Tab` indent, `Shift+Tab` outdent (inside lists, creates nested sub-items).
+
+#### 5.5 Line operations
+
+| Shortcut | Effect |
+|----------|--------|
+| `Alt+↑` / `Alt+↓` | Move current line(s) up / down |
+| `Shift+Alt+↑` / `Shift+Alt+↓` | Duplicate current line up / down |
+| `Ctrl+D` | Delete current line |
+
+#### 5.6 Drag & paste
+
+- **Drop an image** into the editor → auto-inserts `![filename](path)`.
+- **Drop a normal file** → auto-inserts `[filename](path)`.
+- **Paste a URL as a link**: select text, paste an `http(s)://` URL → becomes `[selected text](url)`; with no selection, normal paste.
+- **Paste an image**: when the clipboard is an image, saves it to `images/` beside the document and inserts `![](relative-path)`.
+
+#### 5.7 Undo / redo / find
+
+- Toolbar **↶ / ↷** buttons for undo / redo; the disabled state reflects whether undo/redo is available; shortcuts `Ctrl+Z` / `Ctrl+Y`.
+- `Ctrl+F` opens the find bar (built into CodeMirror), supports regex, case-sensitive, whole-word.
+
+---
+
+### 6. Rendering
+
+#### 6.1 Syntax highlighting
+
+Code blocks use **Shiki** (the same engine as VS Code), supporting 20+ common languages: JavaScript / TypeScript / Python / Rust / Go / Java / C / C++ / C# / PHP / Ruby / SQL / JSON / YAML / HTML / CSS / Bash / Markdown / Shell / Docker / Diff, etc. The theme auto-switches with the app's light/dark mode.
+
+#### 6.2 Math formulas (KaTeX)
+
+- Inline: `$E=mc^2$`
+- Block: `$$\int_0^1 x\,dx = \frac12$$`
+
+#### 6.3 Flowcharts (Mermaid)
+
+Use a ` ```mermaid ` code block, e.g.:
 
 ````markdown
 ```mermaid
 graph LR
-  A[开始] --> B{条件?}
-  B -->|是| C[处理]
-  B -->|否| D[结束]
+  A[Start] --> B{Condition?}
+  B -->|Yes| C[Process]
+  B -->|No| D[End]
   C --> D
 ```
 ````
 
-Mermaid 仅在文档含此类代码块时才懒加载，不影响首屏速度。主题随应用亮/暗联动。渲染失败会显示原始源码和错误提示，便于排查。
+Mermaid is lazy-loaded only when the document contains such a code block, so it doesn't slow first paint. The theme follows the app's light/dark mode. On render failure, the original source and an error hint are shown for troubleshooting.
 
-### 6.4 本地图片
+#### 6.4 Local images
 
-支持本地图片路径，无需手动转协议：
+Supports local image paths without manual protocol conversion:
 
-- 绝对路径：`![](C:\images\pic.png)`
-- 相对路径：`![](./assets/pic.png)`（相对当前文档所在目录解析）
+- Absolute path: `![](C:\images\pic.png)`
+- Relative path: `![](./assets/pic.png)` (resolved relative to the current document's directory)
 
-VsMReader 会自动把本地路径转成可加载的内部协议 URL，图片直接在预览中显示。
+VsMReader auto-converts local paths into loadable internal-protocol URLs; images display directly in the preview.
 
-### 6.5 任务列表
+#### 6.5 Task lists
 
-`- [ ]` 未完成、`- [x]` 已完成，渲染为可读的复选框样式。
+`- [ ]` unchecked, `- [x]` checked — rendered as readable checkbox style.
 
-### 6.6 导出 HTML
+#### 6.6 Export HTML
 
-`Ctrl+Shift+E` 或工具栏"导出"按钮，把当前文档渲染成**独立可分享的 HTML 文件**：内联 CSS（含亮/暗主题变量、prose 排版、KaTeX 样式），代码高亮自带内联样式，Mermaid 导出为内联 SVG。打开即看，无需任何依赖。
-
----
-
-## 七、防丢失机制（重点）
-
-VsMReader 围绕"编辑时绝不丢内容"做了多层保护。
-
-### 7.1 每标签独立编辑历史
-
-- 切换标签**不污染撤销栈**：每个标签保留各自的 undo/redo 历史、光标、滚动位置。
-- 切回某标签，Ctrl+Z 只撤销该标签自己的改动，不会串到别的标签。
-
-### 7.2 自动保存（节流，非防抖）
-
-- 编辑后**延迟保存**（默认 5 分钟，可在设置中调整 1 秒 ~ 10 分钟）。
-- **计时锚定到"最近一次保存"**（自动或手动，取最近的），而非最后一次按键——保证持续编辑时每隔设定间隔触发一次保存（节流语义），不会因为一直打字而永不触发。
-- **已命名文件**：写回原路径，成功后清脏标。
-- **未命名标签**（未保存过的新文档）：自动存**草稿**到数据目录的 `drafts/` 下，不清脏标——崩溃后可恢复。
-- 手动保存（`Ctrl+S`）后会重置自动保存计时，避免"刚手动保存又很快触发自动保存"。
-
-### 7.3 草稿与崩溃恢复
-
-- 未命名标签编辑后定期存草稿，**即使不手动保存、不另存，内容也不会丢**。
-- 启动时若检测到草稿（上次崩溃 / 未正常关闭），**静默恢复**为脏标签（●），你可保存或关闭。
-- 未命名标签**另存为真实文件**后，对应草稿自动删除。
-- 显式关闭标签（`Ctrl+W` 确认关闭）时，草稿也会删除（用户已选择丢弃）。
-
-### 7.4 保存失败通知
-
-- 自动保存失败时，**状态栏左侧和工具栏出现红色 ⚠**，悬停可看错误信息，不再静默失败。
-
-### 7.5 文件外部变动检测
-
-- 每 2 秒轮询已命名文件的修改时间，若磁盘版本被外部程序改动：
-  - 内存未脏（你没改）→ 自动重新加载磁盘内容。
-  - 内存已脏（你正在改）→ 弹窗提示，由你决定是否丢弃本地修改重新加载。
-- 本程序自己写盘的动作有 4 秒抑制窗口，不会误判成"外部修改"导致反复弹窗或滚动跳动。
-
-### 7.6 关闭保护
-
-- 关闭窗口时若有未保存标签，弹出**三选一**提示：
-  - **保存并关闭**：已命名文件写回原路径，未命名标签跳过（草稿已兜底）。
-  - **不保存**：直接关闭（未命名标签可从草稿恢复）。
-  - **取消**：留在编辑。
-- 关闭单个有未保存修改的标签时，也会确认一次。
+`Ctrl+Shift+E` or the toolbar "Export" button renders the current document into a **standalone, shareable HTML file**: inlined CSS (with light/dark theme variables, prose typography, KaTeX styles), code highlighting with inlined styles, Mermaid exported as inline SVG. Opens and views without any dependency.
 
 ---
 
-## 八、侧栏：大纲与文件树
+### 7. Anti-loss mechanisms (key)
 
-### 8.1 大纲
+VsMReader is built around "never lose content while editing".
 
-- 自动从文档提取标题树，按层级缩进显示。
-- **点击任意标题跳转**：编辑/分栏模式跳到源码对应行，阅读模式滚动到对应位置。
-- **滚动联动高亮**：阅读/编辑时，侧栏大纲会高亮当前可见区域对应的标题（IntersectionObserver + 编辑器视口检测）。
+#### 7.1 Per-tab independent edit history
 
-### 8.2 文件树
+- Switching tabs **does not pollute the undo stack**: each tab retains its own undo/redo history, cursor, scroll position.
+- Switching back, Ctrl+Z only undoes that tab's own changes — no bleed into other tabs.
 
-- 浏览当前文档所在目录的文件列表，点击 `.md` 文件直接在新标签打开。
-- 可进入上级目录、子目录。
+#### 7.2 Auto-save (throttled, not debounced)
 
-### 8.3 收藏夹（书签）
+- Saves **after a delay** following edits (default 5 minutes, adjustable 1 second ~ 10 minutes in settings).
+- **Timer anchored to "the most recent save"** (auto or manual, whichever is later) — not to the last keystroke — so continuous typing still triggers a save at each interval (throttle semantics), never stuck because you keep typing.
+- **Named files**: written back to the original path; on success, the dirty mark is cleared.
+- **Untitled tabs** (never-saved new documents): auto-saved as **drafts** to `drafts/` under the data directory; dirty mark stays (for crash recovery).
+- Manual save (`Ctrl+S`) resets the auto-save timer to avoid "just manually saved then immediately auto-saved again".
 
-- 工具栏的收藏按钮可**收藏当前文档**，支持分组管理。
-- 收藏夹持久化，跨会话保留；可按名称/路径筛选。
+#### 7.3 Drafts & crash recovery
 
----
+- Untitled tabs are periodically saved as drafts — **even without manual save or Save-As, content is not lost**.
+- On startup, if drafts are detected (previous crash / unclean close), they're **silently restored** as dirty tabs (●) — you can save or close them.
+- When an untitled tab is **Save-As'd to a real file**, the corresponding draft is auto-deleted.
+- When a tab is explicitly closed (`Ctrl+W` confirmed), the draft is also deleted (user chose to discard).
 
-## 九、主题与排版
+#### 7.4 Save-failure notification
 
-- 工具栏 ☾/☀/◐ 图标切换 **暗色 / 亮色 / 跟随系统**。
-- 代码高亮、Mermaid 图表会随主题联动。
-- **设置 → 阅读区排版**可自定义：字体栈、字号、行高、最大宽度、自定义 CSS（注入到全局，可覆盖任意样式）。
+- When auto-save fails, a **red ⚠ appears on the left of the status bar and in the toolbar**; hover for the error message — no more silent failures.
 
----
+#### 7.5 External file-change detection
 
-## 十、中英文界面
+- Polls named files' modification time every 2 seconds; if the on-disk version was changed by an external program:
+  - Memory not dirty (you didn't edit) → auto-reload the disk content.
+  - Memory dirty (you're editing) → prompt, you decide whether to discard local edits and reload.
+- The program's own write actions have a 4-second suppression window — won't be misdetected as "external change" causing repeated prompts or scroll jumps.
 
-- 工具栏 **中 / En** 按钮一键切换界面语言，或设置中选择。
-- 切换语言实时生效，无需重启。
+#### 7.6 Close protection
 
----
-
-## 十一、链接点击行为
-
-在**阅读/预览区**点击链接时：
-
-- **外部链接**（http/https/mailto 等）→ 用**系统默认浏览器**打开，不会在应用内跳转导致白屏。
-- **文档内锚点**（`#标题`）→ 滚动到对应标题位置。
-
----
-
-## 十二、快捷键速查表
-
-| 快捷键 | 功能 |
-|--------|------|
-| `Ctrl+N` | 新建 |
-| `Ctrl+O` | 打开 |
-| `Ctrl+S` | 保存 |
-| `Ctrl+Shift+S` | 另存为 |
-| `Ctrl+Shift+E` | 导出 HTML |
-| `Ctrl+Z` / `Ctrl+Y` | 撤销 / 重做 |
-| `Ctrl+W` | 关闭当前标签 |
-| `Ctrl+Tab` / `Ctrl+Shift+Tab` | 切换标签 |
-| `Ctrl+\` | 分栏 ↔ 编辑 |
-| `Ctrl+Shift+\` | 分栏 ↔ 阅读 |
-| `Ctrl+B` | 切换侧栏 / 加粗（编辑器内） |
-| `Ctrl+I` | 斜体 |
-| `` Ctrl+` `` | 行内代码 |
-| `Ctrl+K` | 插入链接 |
-| `Ctrl+1`~`Ctrl+6` | 标题 H1~H6 |
-| `Ctrl+8` | 分割线 |
-| `Ctrl+Shift+T` | 表格模板 |
-| `Ctrl+/` | 注释 |
-| `Ctrl+D` | 删除当前行 |
-| `Alt+↑`/`Alt+↓` | 移动行 |
-| `Shift+Alt+↑`/`Shift+Alt+↓` | 复制行 |
-| `Tab` / `Shift+Tab` | 缩进 / 反缩进 |
-| `Ctrl+F` | 查找 |
-
-> macOS 上 `Ctrl` 对应 `Cmd`。
+- On window close, if there are unsaved tabs, a **three-way** prompt appears:
+  - **Save and close**: named files written back; untitled tabs skipped (drafts are the fallback).
+  - **Don't save**: close directly (untitled tabs recoverable from drafts).
+  - **Cancel**: stay in edit.
+- Closing a single tab with unsaved changes also confirms once.
 
 ---
 
-## 十三、常见问题
+### 8. Sidebar: outline & file tree
 
-**Q：双击 .md 没用？**
-A：Windows 上先在 VsMReader 里点 `.md` 按钮注册关联，再到系统"打开方式"里勾选一次"始终使用 VsMReader 打开 .md"（见第一节）。macOS 上安装 `.dmg` 后双击 `.md` 默认走系统文件关联，无需此按钮。
+#### 8.1 Outline
 
-**Q：绿色版数据存在哪？**
-A：Windows 默认存在 `%APPDATA%\com.vsmreader.app\`（设置 `settings.json`、主题偏好 `themeprefs.json`、书签 `bookmarks.json`、草稿 `drafts/`）；macOS 在 `~/Library/Application Support/com.vsmreader.app/`。若 exe 同级有 `portable.txt`，则存在 exe 旁的 `data/` 文件夹，适合 U 盘携带（仅 Windows 绿色版）。
+- Auto-extracts the heading tree from the document, indented by level.
+- **Click any heading to jump**: in Edit/Split mode, jumps to the corresponding source line; in Read mode, scrolls to the position.
+- **Scroll-linked highlight**: while reading/editing, the sidebar outline highlights the heading for the visible region (IntersectionObserver + editor viewport detection).
 
-**Q：图片不显示？**
-A：确认路径正确。相对路径是相对 `.md` 文件所在目录的。绝对路径用反斜杠或正斜杠均可。
+#### 8.2 File tree
 
-**Q：Mermaid 图不显示？**
-A：检查代码块语言是否为 `mermaid`，语法是否正确。渲染失败会显示错误提示和原始源码。
+- Browse the file list of the current document's directory; clicking a `.md` opens it in a new tab.
+- Navigate up to parent dirs and down into subdirs.
 
-**Q：切标签后撤销历史会串吗？**
-A：不会。每个标签有独立的编辑状态缓存，切走时存出、切回时恢复，Ctrl+Z 只撤销当前标签的改动。
+#### 8.3 Favorites (bookmarks)
 
-**Q：未命名文档崩溃了能恢复吗？**
-A：能。未命名标签编辑后会自动存草稿，重启 VsMReader 会静默恢复为脏标签。
-
-**Q：自动保存太频繁影响打字？**
-A：自动保存是节流（每隔设定间隔一次），不是每次按键都保存；默认 5 分钟，可在设置中调整为 1 秒 ~ 10 分钟。保存动作在后台进行，不抢占编辑焦点。
-
-**Q：大文件卡顿？**
-A：超大文件（>100KB）实时渲染会变慢，可切到"编辑"模式专心书写，完成后再切回分栏预览。
+- The toolbar's bookmark button **favorites the current document**, with grouping support.
+- Favorites persist across sessions; filterable by name/path.
 
 ---
 
-## 十四、技术栈
+### 9. Theme & typography
 
-- **前端**：Svelte 5 + TypeScript + Vite，CodeMirror 6 编辑器，markdown-it + Shiki + KaTeX + Mermaid 渲染。
-- **后端**：Tauri 2（Rust），单实例、窗口状态记忆、文件关联、本地文件读写。
-- **构建**：`pnpm tauri build` 产出 Windows（绿色 exe + NSIS 安装包）与 macOS（dmg）。
-
----
-
-## 十五、发布流程
-
-本项目通过 Release 发布预编译程序：
-
-1. 在对应平台执行 `pnpm tauri build`：
-   - Windows 上产出 `src-tauri/target/release/vsmreader.exe`（绿色版）和 `bundle/nsis/VsMReader_0.1.0_x64-setup.exe`（安装包）。
-   - macOS 上产出 `bundle/dmg/VsMReader_0.1.0_x64.dmg`。
-2. 在仓库 **创建 Release**，填写版本号与更新日志，将上述构建产物作为附件上传。
-3. 用户在 Releases 页面直接下载对应平台文件即可运行，无需编译。
+- Toolbar ☾/☀/◐ icons switch **dark / light / follow-system**.
+- Code highlighting and Mermaid diagrams follow the theme.
+- **Settings → Reading-area typography** lets you customize: font stack, font size, line height, max width, custom CSS (injected globally, can override any style).
 
 ---
 
-## 许可证
+### 10. Chinese / English UI
 
-[MIT License](./LICENSE) — 可自由使用、修改、分发。
+- Toolbar **中 / En** button toggles the UI language instantly, or pick in settings.
+- Switch takes effect immediately, no restart.
+
+---
+
+### 11. Link-click behavior
+
+When clicking a link in the **read/preview area**:
+
+- **External links** (http/https/mailto, etc.) → opened with the **system default browser**, not in-app (which would blank-screen).
+- **In-document anchors** (`#heading`) → scroll to the heading.
+
+---
+
+### 12. Shortcut cheat sheet
+
+| Shortcut | Function |
+|----------|----------|
+| `Ctrl+N` | New |
+| `Ctrl+O` | Open |
+| `Ctrl+S` | Save |
+| `Ctrl+Shift+S` | Save As |
+| `Ctrl+Shift+E` | Export HTML |
+| `Ctrl+Z` / `Ctrl+Y` | Undo / Redo |
+| `Ctrl+W` | Close current tab |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab` | Switch tab |
+| `Ctrl+\` | Split ↔ Edit |
+| `Ctrl+Shift+\` | Split ↔ Read |
+| `Ctrl+B` | Toggle sidebar / Bold (in editor) |
+| `Ctrl+I` | Italic |
+| `` Ctrl+` `` | Inline code |
+| `Ctrl+K` | Insert link |
+| `Ctrl+1`~`Ctrl+6` | Heading H1~H6 |
+| `Ctrl+8` | Horizontal rule |
+| `Ctrl+Shift+T` | Table template |
+| `Ctrl+/` | Comment |
+| `Ctrl+D` | Delete current line |
+| `Alt+↑`/`Alt+↓` | Move line |
+| `Shift+Alt+↑`/`Shift+Alt+↓` | Duplicate line |
+| `Tab` / `Shift+Tab` | Indent / Outdent |
+| `Ctrl+F` | Find |
+
+> On macOS, `Ctrl` corresponds to `Cmd`.
+
+---
+
+### 13. FAQ
+
+**Q: Double-click .md doesn't work?**
+A: On Windows, first click the `.md` button in VsMReader to register the association, then check "Always use VsMReader to open .md" once in system "Open with" (see Section 1). On macOS, installing the `.dmg` makes double-clicking `.md` use the system file association — no button needed.
+
+**Q: Where does the portable version store its data?**
+A: Windows default is `%APPDATA%\com.vsmreader.app\` (settings `settings.json`, theme prefs `themeprefs.json`, bookmarks `bookmarks.json`, drafts `drafts/`); macOS is `~/Library/Application Support/com.vsmreader.app/`. If a `portable.txt` exists next to the exe, data goes in a `data/` folder beside the exe — good for USB sticks (Windows portable only).
+
+**Q: Images don't show?**
+A: Check the path. Relative paths are relative to the `.md` file's directory. Absolute paths work with either backslash or forward slash.
+
+**Q: Mermaid diagrams don't show?**
+A: Check that the code-block language is `mermaid` and the syntax is correct. On render failure, an error hint and the original source are shown.
+
+**Q: Does undo history bleed across tabs?**
+A: No. Each tab has an independent edit-state cache — saved on switch-away, restored on switch-back. Ctrl+Z only undoes the current tab's changes.
+
+**Q: Can an untitled document be recovered after a crash?**
+A: Yes. Untitled tabs are auto-saved as drafts; restarting VsMReader silently restores them as dirty tabs.
+
+**Q: Does auto-save interrupt typing?**
+A: Auto-save is throttled (once per interval), not on every keystroke; default 5 minutes, adjustable 1 second ~ 10 minutes in settings. Saving runs in the background and doesn't grab focus.
+
+**Q: Laggy on large files?**
+A: Very large files (>100KB) render slowly in real time — switch to "Edit" mode to focus on writing, then switch back to Split preview.
+
+---
+
+### 14. Tech stack
+
+- **Frontend**: Svelte 5 + TypeScript + Vite, CodeMirror 6 editor, markdown-it + Shiki + KaTeX + Mermaid rendering.
+- **Backend**: Tauri 2 (Rust): single instance, window-state memory, file association, local file I/O.
+- **Build**: `pnpm tauri build` produces Windows (portable exe + NSIS installer) and macOS (dmg).
+
+---
+
+### 15. Release process
+
+This project ships prebuilt binaries via Releases:
+
+1. Run `pnpm tauri build` on the target platform:
+   - On Windows: produces `src-tauri/target/release/vsmreader.exe` (portable) and `bundle/nsis/VsMReader_0.1.0_x64-setup.exe` (installer).
+   - On macOS: produces `bundle/dmg/VsMReader_0.1.0_x64.dmg`.
+2. **Create a Release** in the repo, fill in the version and changelog, upload the above artifacts as attachments.
+3. Users download the file for their platform from the Releases page — no compilation needed.
+
+---
+
+## License
+
+[MIT License](./LICENSE) — free to use, modify, and distribute.
