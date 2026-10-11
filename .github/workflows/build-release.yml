@@ -1,5 +1,4 @@
 name: Build & Release
-
 # 触发条件：
 #   1. 推送 v* 标签 → 全平台构建 + 创建 Draft Release（草稿，需手动发布）
 #   2. 手动触发（workflow_dispatch）→ 只构建，不建 Release，用于测试 CI 是否跑通
@@ -16,16 +15,16 @@ permissions:
 jobs:
   build:
     strategy:
-      fail-fast: false           # 某平台失败不影响其它平台继续跑完
+      fail-fast: false # 某平台失败不影响其它平台继续跑完
       matrix:
         include:
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             label: windows
-          - platform: macos-latest     # M 系列 ARM 芯片
+          - platform: macos-latest # M 系列 ARM 芯片
             target: aarch64-apple-darwin
             label: macos-arm
-          - platform: macos-latest     # Intel 芯片
+          - platform: macos-latest # Intel 芯片
             target: x86_64-apple-darwin
             label: macos-intel
     runs-on: ${{ matrix.platform }}
@@ -47,31 +46,46 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> target
+          workspaces: src-tauri
           key: ${{ matrix.label }}
 
       - run: pnpm install --frozen-lockfile
 
-      # 构建并（仅在 tag 触发时）上传 bundle 产物到 Release：
-      #   Windows → bundle/nsis/*.exe（NSIS 安装包）
-      #   macOS   → bundle/dmg/*.dmg
-      # 手动触发（workflow_dispatch）时 tagName 为空 → 只构建不建 Release，用于测试 CI 是否跑通
+      # Tauri 构建，tag触发时生成草稿Release，自动上传NSIS/dmg包
       - name: Build Tauri app
+        id: build-tauri
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
           releaseName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
-          releaseDraft: true        # 草稿状态，你确认后再点「Publish」发布
+          releaseDraft: true # 草稿状态，你确认后再点「Publish」发布
           prerelease: false
           args: --target ${{ matrix.target }}
 
-      # Windows 绿色版（裸 exe）不在 bundle 里，tauri-action 不会上传，单独补传
-      - name: Upload Windows portable exe
-        if: matrix.label == 'windows' && startsWith(github.ref, 'refs/tags/')
+      # 上传绿色便携exe为临时Artifact（仅Windows）
+      - name: Upload portable exe artifact
+        if: matrix.label == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-exe
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/vsmreader.exe
+
+# 【后置Job】所有构建完成后，把便携exe追加到Release（仅tag触发）
+  attach-portable:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download portable exe artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: portable-exe
+
+      - name: Append portable exe to draft release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: |
-            src-tauri/target/x86_64-pc-windows-msvc/release/vsmreader.exe
+          files: vsmreader.exe
+          append_body: true
