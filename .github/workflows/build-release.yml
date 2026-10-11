@@ -59,12 +59,27 @@ jobs:
           prerelease: false
           args: --target ${{ matrix.target }}
 
-      # ========== 调试：打印打包目录所有文件 ==========
-      - name: List bundle output files
-        run: ls src-tauri/target/${{ matrix.target }}/release/bundle/*
+      # 调试：打印release目录和bundle目录文件
+      - name: List release & bundle files
+        run: |
+          echo "=== release目录 ==="
+          ls src-tauri/target/${{ matrix.target }}/release
+          echo "=== bundle目录 ==="
+          ls src-tauri/target/${{ matrix.target }}/release/bundle
 
-      # ========== 上传产物，Artifact名称带label，避免同名冲突 ==========
-      - name: Upload build artifacts
+      # ===== Windows：上传bundle安装包 + 裸便携exe =====
+      - name: Upload Windows bundle + portable exe
+        if: matrix.label == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-${{ matrix.label }}
+          path: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/
+            src-tauri/target/${{ matrix.target }}/release/vsmreader.exe
+
+      # ===== Mac：只上传bundle目录（dmg安装包） =====
+      - name: Upload Mac bundle
+        if: matrix.label != 'windows'
         uses: actions/upload-artifact@v4
         with:
           name: artifact-${{ matrix.label }}
