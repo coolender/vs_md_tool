@@ -14,11 +14,15 @@ VsMReader 是一个**体积仅几 MB、免安装、可随身携带**的 Markdown
 
 在 Releases 发布页下载对应平台的程序，开箱即用，无需编译。两个镜像源任选其一：
 
-| 平台 | 文件 | 说明 |
+| 文件 | 平台 | 说明 |
 |------|------|------|
-| Windows | `vsmreader.exe` | 🟢 绿色单文件，双击即用，免安装 |
-| Windows | `VsMReader_0.1.0_x64-setup.exe` | NSIS 安装包，双击安装 |
-| macOS | `VsMReader_0.1.0_x64.dmg` | 拖入 Applications 安装 |
+| `vsmreader.exe` | Windows | 🟢 绿色单文件，双击即用，免安装 |
+| `VsMReader_0.1.0_x64-setup.exe` | Windows | NSIS 安装包，双击安装 |
+| `VsMReader_0.1.0_aarch64.dmg` | macOS · Apple Silicon (M1/M2/M3) | 拖入 Applications 安装 |
+| `VsMReader_0.1.0_x64.dmg` | macOS · Intel | 拖入 Applications 安装 |
+
+> 💡 Windows 用户推荐绿色版 `vsmreader.exe`——免安装、可随身携带（U 盘便携模式见下文）。
+> 💡 macOS 用户按芯片选择：M 系列选 `aarch64`，Intel 选 `x64`（关于本机 → 芯片/处理器）。
 
 > 两个源内容完全一致，任选一个下载即可。
 > - 国内用户推荐 Gitee：[Gitee Releases](https://gitee.com/coolender/vs_md_tool/releases)

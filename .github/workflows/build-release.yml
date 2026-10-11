@@ -29,6 +29,23 @@ jobs:
             target: x86_64-apple-darwin
             label: macos-intel
     runs-on: ${{ matrix.platform }}
+    env:
+      # 草稿 Release 的说明正文，三个 job 都引用同一份，避免竞态丢内容。
+      RELEASE_BODY: |
+        ## 下载说明 / Download Guide
+
+        按平台选择对应文件 / Pick the file for your platform:
+
+        | 文件 / File | 平台 / Platform | 说明 / Description |
+        |---|---|---|
+        | `vsmreader.exe` | Windows | 🟢 绿色版，双击即用，免安装 / Portable, no install |
+        | `*-setup.exe` | Windows | NSIS 安装包 / NSIS installer |
+        | `*_aarch64.dmg` | macOS · Apple Silicon (M1/M2/M3) | 拖入 Applications 安装 / Drag to Applications |
+        | `*_x64.dmg` | macOS · Intel | 拖入 Applications 安装 / Drag to Applications |
+        | `Source code (zip/tar.gz)` | — | 源代码，普通用户无需下载 / Source code, not for end users |
+
+        > 💡 Windows 用户推荐绿色版 `vsmreader.exe`，免安装、可随身携带（U 盘便携模式见 README）。
+        > 💡 macOS 用户按芯片选择：M 系列选 `aarch64`，Intel 选 `x64`。
     steps:
       - uses: actions/checkout@v4
 
@@ -79,6 +96,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           draft: true
+          body: ${{ env.RELEASE_BODY }}
           files: |
             src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe
             src-tauri/target/${{ matrix.target }}/release/vsmreader.exe
@@ -89,5 +107,6 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           draft: true
+          body: ${{ env.RELEASE_BODY }}
           files: |
             src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg

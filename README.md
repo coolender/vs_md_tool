@@ -14,11 +14,15 @@ VsMReader is a **only a few MB, installation-free, portable** Markdown tool for 
 
 Download the build for your platform from the Releases page — ready to run, no compilation needed. Either mirror works:
 
-| Platform | File | Notes |
-|----------|------|-------|
-| Windows | `vsmreader.exe` | 🟢 Portable single file, double-click to run, no install |
-| Windows | `VsMReader_0.1.0_x64-setup.exe` | NSIS installer |
-| macOS | `VsMReader_0.1.0_x64.dmg` | Drag into Applications to install |
+| File | Platform | Description |
+|------|----------|-------------|
+| `vsmreader.exe` | Windows | 🟢 Portable single file, double-click to run, no install |
+| `VsMReader_0.1.0_x64-setup.exe` | Windows | NSIS installer |
+| `VsMReader_0.1.0_aarch64.dmg` | macOS · Apple Silicon (M1/M2/M3) | Drag into Applications to install |
+| `VsMReader_0.1.0_x64.dmg` | macOS · Intel | Drag into Applications to install |
+
+> 💡 Windows: prefer the portable `vsmreader.exe` — no install, can be carried on a USB stick (see USB-stick mode below).
+> 💡 macOS: pick by chip — M-series → `aarch64`, Intel → `x64` (About This Mac → Chip / Processor).
 
 > Both mirrors host identical files — pick either one.
 > - Users in China may prefer Gitee: [Gitee Releases](https://gitee.com/coolender/vs_md_tool/releases)
