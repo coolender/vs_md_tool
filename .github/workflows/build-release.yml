@@ -64,7 +64,14 @@ jobs:
           prerelease: false
           args: --target ${{ matrix.target }}
 
-      # 上传绿色便携exe为临时Artifact（仅Windows）
+      # 【调试用】列出release目录文件，方便查看真实exe文件名
+      - name: List release directory files
+        if: matrix.label == 'windows'
+        run: |
+          cd src-tauri/target/x86_64-pc-windows-msvc/release
+          ls
+
+      # 上传绿色便携exe为临时Artifact（Windows，手动/Tag触发都会执行）
       - name: Upload portable exe artifact
         if: matrix.label == 'windows'
         uses: actions/upload-artifact@v4
