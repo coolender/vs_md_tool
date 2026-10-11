@@ -56,4 +56,7 @@ desktop.ini
 # ===== 维护者笔记（仅作者本地参考，不提交）=====
 MAINTAINER.md
 /.github/
-/.github/
+
+# ===== 发版脚本与 release 说明模板（仅作者本地使用，不上传）=====
+scripts/release.mjs
+scripts/release-notes.md
